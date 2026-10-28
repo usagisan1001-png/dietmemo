@@ -104,7 +104,7 @@ p{margin:0}
 .cal-mini span:last-child{font-size:.7rem;color:var(--muted)}
 
 /* carousel + pick cards */
-.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:4px max(16px,env(safe-area-inset-left,0px)) 10px;scrollbar-width:none}
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:max(16px,env(safe-area-inset-left,0px));margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:4px max(16px,env(safe-area-inset-left,0px)) 10px;scrollbar-width:none}
 .carousel::-webkit-scrollbar{display:none}
 .pick{flex:none;width:68%;max-width:230px;scroll-snap-align:start;border-radius:24px;overflow:hidden;background:var(--surface);box-shadow:0 6px 18px var(--shadow);display:flex;flex-direction:column;text-align:left;border:0;padding:0}
 .pick .cover{height:92px}
@@ -302,6 +302,14 @@ details.more[open] summary{margin-bottom:10px}
 .ob .hero{padding:28px 22px}
 .ob .logo .en{font-size:2.6rem;line-height:1}
 .ob .logo .ja{font-weight:800;font-size:.9rem;letter-spacing:.2em;opacity:.75}
+/* fixes */
+.wrap>.stack-lg:first-child{padding-top:12px}
+#o-err:empty,#imp-msg:empty{display:none}
+.badge{font-size:.74rem}
+.tag{font-size:.74rem}
+.cell .marks{font-size:.7rem}
+.navbtn{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:1.1rem;line-height:1}
+.navbtn:disabled{opacity:.3}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 
@@ -654,7 +662,7 @@ function ladyPill(t){
 function pickCard(it){
  return`<div class="pick"><button style="border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><div class="cover ${gcls(it.g)}" style="width:100%">${icon(it.g)}<span class="time">${it.min}</span></div>
  <div class="in" style="padding-bottom:6px"><span class="tag ${it.g}" style="align-self:flex-start">${GENRES[it.g]}</span><b>${esc(it.name)}</b><span class="t2">${esc(it.target)}</span></div></button>
- <div class="in" style="padding-top:0;flex-direction:row;justify-content:space-between;align-items:center"><span class="badges"><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span><button class="heart" data-act="doit" data-id="${it.id}">♡ やった</button></div></div>`;
+ <div class="in" style="padding-top:0;margin-top:auto"><span class="badges"><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span><button class="heart" style="align-self:flex-start" data-act="doit" data-id="${it.id}">♡ やった</button></div></div>`;
 }
 function vHome(){
  const t=todayKey(),y=addDays(t,-1),yd=S.days[y],td=S.days[t];
@@ -680,7 +688,7 @@ function vHome(){
  <button class="cal-mini" data-act="go" data-r="calendar" aria-label="カレンダー"><span class="mo">${['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][cd.getMonth()]}</span><span class="big">${cd.getDate()}</span><span>カレンダー</span></button></div>
  <section class="stack"><div class="sec-h"><h2>今日のおすすめ</h2><button class="link" data-act="go" data-r="guide">ガイドへ ›</button></div><div class="carousel">${todayPicks().map(pickCard).join('')}</div></section>
  <section class="yay"><h2>この7日間のがんばり</h2>
-  ${logged||moved?`<div class="yay-nums"><div class="yay-num"><b>${logged}</b><span>記録した日</span></div><div class="yay-num"><b>${moved}</b><span>体を動かした日</span></div></div>
+  ${logged||moved?`<div class="yay-nums"><div class="yay-num"><b>${logged}</b><span>記録した日</span></div><div class="yay-num">${moved?`<b>${moved}</b>`:`<b style="font-size:1.1rem;line-height:2">これから ♡</b>`}<span>体を動かした日</span></div></div>
   ${recent.length?`<ul>${recent.map(({k,e})=>`<li>${esc(e.g==='massage'?`${e.part}をほぐした`:e.name)}<span class="num">${k===t?'今日':fmtMD(k)}</span></li>`).join('')}</ul>`:''}`:`<div class="rest">今週はおやすみ週。<br>開いてくれただけでOK ♡</div>`}
  </section>
  <section class="numbers"><div class="numbers-h"><h3>からだの数字</h3><button class="btn sm" data-act="home-nums">${show?'しまう':'ひらく'}</button></div>${show?nums:''}</section>
@@ -764,7 +772,7 @@ function vRecord(k){
  const d=S.days[k]||newDay();const t=todayKey();const i=phIdx(k);
  const isToday=k===t;const sm=summaries(d);
  const n=['body','meal','ex','med','msg'].filter(x=>sm[x]).length;
- return`<div class="datenav"><button class="back" data-act="date-shift" data-n="-1" aria-label="前の日">‹</button><div style="text-align:center"><h1 class="num">${fmtLong(k)}</h1>${isToday?'<span class="small muted">今日</span>':`<button class="link small" data-act="date-today">今日へ</button>`}</div><button class="back" data-act="date-shift" data-n="1" aria-label="次の日" ${k>=t?'disabled style="opacity:.3"':''}>›</button></div>
+ return`<div class="datenav"><button class="navbtn" data-act="date-shift" data-n="-1" aria-label="前の日">‹</button><div style="text-align:center"><h1 class="num">${fmtLong(k)}</h1>${isToday?'<span class="small muted">今日</span>':`<button class="link small" data-act="date-today">今日へ</button>`}</div><button class="navbtn" data-act="date-shift" data-n="1" aria-label="次の日" ${k>=t?'disabled':''}>›</button></div>
  <div class="prog"><span class="dots">${[0,1,2,3,4].map(j=>`<i class="${j<n?'on':''}"></i>`).join('')}</span><span>${n?`${isToday?'今日':'この日'}は ${n}こ きろくできた ♡`:'書けるところだけ、1つでもOK'}</span></div>
  <div class="folds">
  ${fold('body','body','var(--sub-soft)','体',sm.body,'体重・歩数など',()=>`
@@ -818,7 +826,7 @@ function exForm(f){
   h=`<div class="grid2"><div class="field"><label for="x-part">部位</label><select class="inp" id="x-part">${opts(PARTS,part)}</select></div>
   <div class="field"><label for="x-name">種目</label><select class="inp" id="x-name">${opts([...nameOptions('st',part),FREE],f.name)}</select></div></div>
   <div class="field" id="x-freewrap" ${f.name===FREE?'':'hidden'}><label for="x-free">種目名</label><input class="inp" id="x-free" placeholder="自分がわかる名前で"></div>
-  <div class="grid2"><div class="field"><label for="x-weight">重量</label><input class="inp" id="x-weight" placeholder="例：2Lボトル、自重"></div><div class="field"><label for="x-reps">回数</label><input class="inp" id="x-reps" placeholder="例：15回×3、30秒"></div></div>`;
+  <div class="grid2"><div class="field"><label for="x-weight">重量</label><input class="inp" id="x-weight" placeholder="例：2Lボトル"></div><div class="field"><label for="x-reps">回数</label><input class="inp" id="x-reps" placeholder="例：15回×3"></div></div>`;
  }else if(f.g==='yoga'||f.g==='cardio'){
   h=`<div class="field"><label for="x-name">${f.g==='yoga'?'ポーズ':'種目'}</label><select class="inp" id="x-name">${opts([...nameOptions(f.g),FREE],f.name)}</select></div>
   <div class="field" id="x-freewrap" ${f.name===FREE?'':'hidden'}><label for="x-free">名前</label><input class="inp" id="x-free" placeholder="自分がわかる名前で"></div>
@@ -859,7 +867,7 @@ function vCalendar(){
  }
  return`<h1>カレンダー</h1>
  <section class="card-s stack"><div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="表示">${[['week','週'],['month','月']].map(([v,n])=>`<button data-act="cal-mode" data-v="${v}" aria-pressed="${mode===v}">${n}</button>`).join('')}</div></div>
- <div class="datenav"><button class="back" data-act="cal-shift" data-n="-1" aria-label="前へ">‹</button><h2 class="num">${title}</h2><button class="back" data-act="cal-shift" data-n="1" aria-label="次へ">›</button></div>
+ <div class="datenav"><button class="navbtn" data-act="cal-shift" data-n="-1" aria-label="前へ">‹</button><h2 class="num">${title}</h2><button class="navbtn" data-act="cal-shift" data-n="1" aria-label="次へ">›</button></div>
  ${grid}
  <div class="legend"><span><span style="color:var(--accent)">♡</span> 記録した日</span>${lo?`<span><span style="color:var(--lady)">☾</span> ${LD}</span>${S.settings.periodPredict?`<span><i style="border:1px dashed var(--lady)"></i>予定</span>`:''}`:''}</div>
  <p class="small muted">日付をタップでその日を見返せるよ</p></section>
@@ -870,7 +878,7 @@ function chart(range,metric){
  const meds=[...new Set(range.flatMap(k=>(S.days[k]||{}).meds||[]))];
  const Wd=340,L=34,R=8,Tp=10,H=130,n=range.length;
  const xs=i=>L+(n===1?0:(i/(n-1))*(Wd-L-R));
- const bandH=16,total=Tp+H+20+meds.length*bandH+(meds.length?8:0);
+ const bandH=24,total=Tp+H+22+meds.length*bandH+(meds.length?6:0);
  if(!pts.length)return`<p class="small muted">この期間の記録はまだないよ。</p>`;
  let lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v));
  const padv=metric==='weight'?0.5:0.1;lo-=padv;hi+=padv;if(hi-lo<(metric==='weight'?1:0.3)){const m=(hi+lo)/2;const s=metric==='weight'?0.5:0.15;lo=m-s;hi=m+s}
@@ -879,10 +887,10 @@ function chart(range,metric){
  let g='';
  if(ladyOn())range.forEach((k,i)=>{if((S.days[k]||{}).period)g+=`<rect x="${xs(i)-dx/2}" y="${Tp}" width="${dx}" height="${H}" fill="var(--lady-soft)"/>`});
  [lo,(lo+hi)/2,hi].forEach(v=>{g+=`<line x1="${L}" x2="${Wd-R}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-4}" y="${ys(v)+3}" text-anchor="end">${metric==='weight'?v.toFixed(1):v.toFixed(2)}</text>`});
- const step=n>10?7:1;range.forEach((k,i)=>{if(i%step===0||i===n-1)g+=`<text x="${xs(i)}" y="${Tp+H+14}" text-anchor="middle">${fmtMD(k)}</text>`});
+ const step=n>10?7:1;range.forEach((k,i)=>{const lastOk=i===n-1&&(n-1)%step>=step/2;if(i%step===0||lastOk||(step===1))g+=`<text x="${Math.min(Math.max(xs(i),L+8),Wd-R-10)}" y="${Tp+H+14}" text-anchor="middle">${fmtMD(k)}</text>`});
  g+=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>`${xs(p.i)},${ys(p.v)}`).join(' ')}"/>`;
  pts.forEach((p,j)=>{g+=`<circle cx="${xs(p.i)}" cy="${ys(p.v)}" r="${j===pts.length-1?3.6:2}" fill="var(--accent)"/>`});
- meds.forEach((m,mi)=>{const y=Tp+H+26+mi*bandH;g+=`<text x="2" y="${y+8}">${esc(m.length>4?m.slice(0,4)+'…':m)}</text>`;range.forEach((k,i)=>{if(((S.days[k]||{}).meds||[]).includes(m))g+=`<rect x="${xs(i)-dx/2+0.5}" y="${y}" width="${Math.max(1,dx-1)}" height="10" rx="3" fill="var(--sub)" opacity=".6"/>`})});
+ meds.forEach((m,mi)=>{const y=Tp+H+34+mi*bandH;g+=`<text x="${L}" y="${y-3}">${esc(m)}</text>`;range.forEach((k,i)=>{if(((S.days[k]||{}).meds||[]).includes(m))g+=`<rect x="${xs(i)-dx/2+0.5}" y="${y}" width="${Math.max(1,dx-1)}" height="8" rx="3" fill="var(--sub)" opacity=".6"/>`})});
  return`<div class="chart"><svg viewBox="0 0 ${Wd} ${total}" role="img" aria-label="${metric==='weight'?'体重':'基礎体温'}の推移">${g}</svg></div>${meds.length?'<p class="small muted">下の帯は薬・サプリを記録した日</p>':''}`;
 }
 
@@ -913,7 +921,7 @@ function vSettings(){
  <section class="panel stack"><h2>バックアップ</h2>
   <p class="small muted">記録はこの端末のブラウザの中だけにあるよ。ブラウザのデータを消したり機種変更したりすると消えるから、ときどきバックアップを残してね。</p>
   ${ui.backup?`<textarea class="inp num" id="bk" rows="5" readonly>${esc(JSON.stringify(S))}</textarea><div class="row"><button class="btn sm primary" data-act="bk-copy">コピーする</button><button class="btn sm ghost" data-act="bk-hide">とじる</button></div><p class="small muted">コピーした文字を、メモアプリなどに貼って保管してね。</p>`:`<button class="btn" data-act="bk-show">バックアップを作る</button>`}
-  <div class="field"><label for="imp">バックアップから戻す</label><textarea class="inp" id="imp" rows="3" placeholder="保管しておいたバックアップの文字を貼りつけ">${esc(ui.importText)}</textarea><input type="file" id="impFile" accept=".json,.txt,application/json,text/plain" class="small"></div>
+  <div class="field"><label for="imp">バックアップから戻す</label><textarea class="inp" id="imp" rows="3" placeholder="保管しておいたバックアップの文字を貼りつけ">${esc(ui.importText)}</textarea><label class="btn sm" style="align-self:flex-start;cursor:pointer">ファイルから選ぶ<input type="file" id="impFile" accept=".json,.txt,application/json,text/plain" hidden></label></div>
   ${conf==='import'?`<div class="banner warn"><span>今の記録をバックアップの内容に置き換えます</span><span class="row"><button class="btn sm primary" data-act="imp-yes">置き換える</button><button class="btn sm ghost" data-act="conf-no">やめる</button></span></div>`:`<button class="btn" data-act="imp-ask">読み込む</button>`}
   <p class="out" id="imp-msg" style="color:var(--accent)"></p>
  </section>
