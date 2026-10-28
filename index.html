@@ -517,7 +517,7 @@ let S=load()||blank();
 S.settings=Object.assign(blank().settings,S.settings||{});
 S.custom=Object.assign({st:[],yoga:[],cardio:[]},S.custom||{});
 S.meds=S.meds||[];S.days=S.days||{};
-const ui={open:null,exForm:null,confirm:null,backup:false,importText:'',calCursor:null,showChart:false,obLady:true};
+const ui={editEx:null,open:null,exForm:null,confirm:null,backup:false,importText:'',calCursor:null,showChart:false,obLady:true};
 const ladyOn=()=>!!S.settings.periodRecord;
 
 /* ===== 便利関数 ===== */
@@ -543,6 +543,7 @@ function bmrFactor(age){const a=num(age);if(a==null||a<15)return null;return a<1
 function bmrEst(w){const f=bmrFactor(S.profile&&S.profile.age);return f&&w?Math.round(f*w):null}
 function weightDelta(t,days){const now=latest('weight',t);const past=latest('weight',addDays(t,-days));if(!now||!past||past.k===now.k)return null;return{d:now.v-past.v,k:past.k}}
 const fmtDelta=d=>`${d>0?'+':d<0?'−':'±'}${Math.abs(d).toFixed(1)}`;
+const memoLink=(id,txt)=>didToday(id)?`<button class="link small" style="align-self:flex-start" data-act="doit-memo" data-id="${id}">${txt||'＋ 回数やメモを書く'}</button>`:'';
 const didToday=id=>((S.days[todayKey()]||{}).ex||[]).some(e=>e.src===id);
 function hasRecord(d){if(!d)return false;return !!(d.weight||d.steps||(ladyOn()&&(d.temp||d.period))||d.meals.some(m=>m.trim())||d.ex.length||d.meds.length||d.review||d.toYesterday||d.toTomorrow||Object.values(d.sizes||{}).some(Boolean))}
 const phIdx=k=>parseKey(k).getDate()%3;
@@ -590,7 +591,7 @@ function go(name,p={},lv){
  const L=lv??ROUTES[name].lv;
  stack=stack.filter(r=>r.lv<L);
  if(stack.length===1&&ROUTES[name].parent){const par=ROUTES[name].parent;stack.push({name:par,p:{},lv:ROUTES[par].lv})}
- stack.push({name,p,lv:L});ui.exForm=null;ui.confirm=null;ui.backup=false;ui.open=null;
+ stack.push({name,p,lv:L});ui.editEx=null;ui.exForm=null;ui.confirm=null;ui.backup=false;ui.open=null;
  render();window.scrollTo(0,0);
 }
 function label(r){
@@ -670,7 +671,7 @@ function ladyPill(t){
 function pickCard(it){
  return`<div class="pick"><button style="border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><div class="cover ${gcls(it.g)}" style="width:100%">${icon(it.g)}<span class="time">${it.min}</span></div>
  <div class="in" style="padding-bottom:6px"><span class="tag ${it.g}" style="align-self:flex-start">${GENRES[it.g]}</span><b>${esc(it.name)}</b><span class="t2">${esc(it.target)}</span></div></button>
- <div class="in" style="padding-top:0;margin-top:auto"><span class="badges"><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span><button class="heart${didToday(it.id)?' on':''}" style="align-self:flex-start" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ やった！':'♡ やった'}</button></div></div>`;
+ <div class="in" style="padding-top:0;margin-top:auto"><span class="badges"><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span><button class="heart${didToday(it.id)?' on':''}" style="align-self:flex-start" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ やった！':'♡ やった'}</button>${memoLink(it.id)}</div></div>`;
 }
 function vHome(){
  const t=todayKey(),y=addDays(t,-1),yd=S.days[y],td=S.days[t];
@@ -710,7 +711,7 @@ function vHome(){
 
 /* ガイド */
 function irow(it){
- return`<div class="irow"><span class="sq ${gcls(it.g)}">${icon(it.g)}</span><button class="mid" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><b>${esc(it.name)}</b><span class="badges"><span class="badge">${it.min}</span><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span></button><button class="heart${didToday(it.id)?' on':''}" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ やった！':'♡ やった'}</button></div>`;
+ return`<div class="irow"><span class="sq ${gcls(it.g)}">${icon(it.g)}</span><button class="mid" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><b>${esc(it.name)}</b><span class="badges"><span class="badge">${it.min}</span><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span></button><span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none"><button class="heart${didToday(it.id)?' on':''}" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ やった！':'♡ やった'}</button>${memoLink(it.id,'メモする')}</span></div>`;
 }
 function cchips(list){return`<div class="cchips">${list.map((c,i)=>`<button class="cchip c${i%4}" data-act="go" data-r="concern" data-p='${JSON.stringify({id:c.id})}'>${c.name}</button>`).join('')}</div>`}
 function moreRows(){
@@ -747,7 +748,7 @@ function vItem(id){
  ${it.point?`<section class="know stack"><span class="eyebrow">ポイント</span><p>${esc(it.point)}</p></section>`:''}
  ${it.caution?`<section class="stack"><h3>気をつけること</h3><p class="small">${esc(it.caution)}</p></section>`:''}
  <section class="stack"><h3>こんな悩みに</h3>${cchips(itemConcerns(it).map(id=>CONCERNS.find(c=>c.id===id)))}</section>
- <button class="btn primary${didToday(it.id)?' on':''}" style="padding:12px" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ 今日やった！（押すと取り消し）':'♡ これやった（今日の記録に追加）'}</button>`;
+ <button class="btn primary${didToday(it.id)?' on':''}" style="padding:12px" data-act="doit" data-id="${it.id}" aria-pressed="${didToday(it.id)}">${didToday(it.id)?'♡ 今日やった！（押すと取り消し）':'♡ これやった（今日の記録に追加）'}</button>${memoLink(it.id)}`;
 }
 function vTools(){
  return`<section class="big-cover g-massage">${icon('massage')}<h1>自宅用セルフケアグッズ紹介</h1><p class="small">道具がなくても、手やタオルで十分ほぐせるよ。記録の「運動・ほぐし」から部位と道具を選んでメモできる。</p></section>
@@ -824,7 +825,10 @@ function exLine(e,j){
  const tag={st:'筋トレ',yoga:'ヨガ',cardio:'有酸素',massage:'ほぐし'}[e.g];
  const head=e.g==='st'?`${esc(e.part)} · ${esc(e.name)}`:e.g==='massage'?`${esc(e.part)}${e.tool?` · ${esc(e.tool)}`:''}`:esc(e.name);
  const det=[e.weight,e.reps,e.amount].filter(Boolean).map(esc).join(' / ');
- return`<div class="entry"><span class="tag ${e.g}">${tag}</span><div class="body"><p><b>${head}</b>${det?` <span class="muted small">${det}</span>`:''}</p>${e.memo?`<p class="small muted">${esc(e.memo)}</p>`:''}</div><button class="x" data-act="ex-del" data-i="${j}" aria-label="消す">×</button></div>`;
+ const ed=ui.editEx===j;
+ return`<div class="entry" id="ex-${j}"><span class="tag ${e.g}">${tag}</span><div class="body"><p><b>${head}</b>${det?` <span class="muted small">${det}</span>`:''}</p>${e.memo?`<p class="small muted">${esc(e.memo)}</p>`:''}
+ ${ed?`<div class="exform" style="margin-top:8px">${e.g==='st'?`<div class="grid2"><div class="field"><label for="e-weight">重量</label><input class="inp" id="e-weight" placeholder="例：2Lボトル" value="${esc(e.weight)}"></div><div class="field"><label for="e-reps">回数</label><input class="inp" id="e-reps" placeholder="例：15回×3" value="${esc(e.reps)}"></div></div>`:''}${e.g==='cardio'?`<div class="field"><label for="e-amount">時間・量</label><input class="inp" id="e-amount" placeholder="例：20分" value="${esc(e.amount)}"></div>`:''}<div class="field"><label for="e-memo">メモ</label><input class="inp" id="e-memo" placeholder="感じたこと、きつさなど" value="${esc(e.memo)}"></div><div class="row"><button class="btn primary sm" data-act="ex-upd" data-i="${j}">保存する</button><button class="btn ghost sm" data-act="ex-edit" data-i="-1">やめる</button></div></div>`:`<button class="link small" data-act="ex-edit" data-i="${j}">${e.memo||det?'書き直す':'＋ 回数やメモ'}</button>`}
+ </div><button class="x" data-act="ex-del" data-i="${j}" aria-label="消す">×</button></div>`;
 }
 function nameOptions(g,part){
  const base=ITEMS.filter(i=>i.g===g&&(g!=='st'||i.part===part)).map(i=>i.name);
@@ -989,7 +993,7 @@ app.addEventListener('click',e=>{
   case'crumb':stack=stack.slice(0,+a.dataset.i+1);ui.exForm=null;ui.open=null;render();window.scrollTo(0,0);break;
   case'date-shift':{const nk=addDays(dk,+a.dataset.n);if(nk>todayKey())break;r.p={...r.p,date:nk};ui.exForm=null;render();break}
   case'date-today':r.p={...r.p,date:todayKey()};render();break;
-  case'fold':{const id=a.dataset.id;ui.open=ui.open===id?null:id;ui.exForm=null;render();if(ui.open){const el=document.getElementById('s-'+id);if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'})}break}
+  case'fold':{const id=a.dataset.id;ui.open=ui.open===id?null:id;ui.exForm=null;ui.editEx=null;render();if(ui.open){const el=document.getElementById('s-'+id);if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'})}break}
   case'period':{const d=day(dk,true);d.period=!d.period;persist();render();break}
   case'meal-add':{const d=day(dk,true);d.meals.push('');persist();render();const el=document.getElementById('m-'+(d.meals.length-1));if(el)el.focus();break}
   case'meal-del':{const d=day(dk,true);d.meals.splice(+a.dataset.i,1);persist();render();break}
@@ -1002,12 +1006,15 @@ app.addEventListener('click',e=>{
      const list=S.custom[f.g];const part=f.g==='st'?v('x-part'):undefined;if(!list.some(c=>c.name===nm&&(f.g!=='st'||c.part===part)))list.push(f.g==='st'?{part,name:nm}:{name:nm})}
     ent.name=nm;if(f.g==='st'){ent.part=v('x-part');ent.weight=v('x-weight');ent.reps=v('x-reps')}if(f.g==='cardio')ent.amount=v('x-amount')}
    day(dk,true).ex.push(ent);persist();ui.exForm=null;render();toast('追加したよ ♡');break}
-  case'ex-del':{const d=day(dk,true);d.ex.splice(+a.dataset.i,1);persist();render();break}
+  case'ex-edit':{const i2=+a.dataset.i;ui.editEx=i2>=0?i2:null;ui.exForm=null;render();if(ui.editEx!=null){const f=document.getElementById(ui.editEx!=null&&S.days[dk].ex[ui.editEx].g==='st'?'e-weight':'e-memo');if(f)f.focus()}break}
+  case'ex-upd':{const e2=day(dk,true).ex[+a.dataset.i];const v=id=>{const el=document.getElementById(id);return el?el.value.trim():undefined};['weight','reps','amount','memo'].forEach(k=>{const x=v('e-'+k);if(x!==undefined)e2[k]=x});persist();ui.editEx=null;render();toast('保存したよ ♡');break}
+  case'doit-memo':{const d=day(todayKey(),true);const idx=d.ex.findIndex(e=>e.src===a.dataset.id);go('record',{});ui.open='ex';ui.editEx=idx>=0?idx:null;render();const el=document.getElementById('ex-'+idx)||document.getElementById('s-ex');if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});const f=document.getElementById(d.ex[idx]&&d.ex[idx].g==='st'?'e-weight':'e-memo');if(f)f.focus({preventScroll:true});break}
+  case'ex-del':{const d=day(dk,true);d.ex.splice(+a.dataset.i,1);ui.editEx=null;persist();render();break}
   case'med-toggle':{const d=day(dk,true);const m=a.dataset.name;d.meds=d.meds.includes(m)?d.meds.filter(x=>x!==m):[...d.meds,m];persist();render();break}
   case'med-add':{const el=document.getElementById('medNew');const m=el.value.trim();if(!m)break;if(!S.meds.includes(m))S.meds.push(m);const d=day(dk,true);if(!d.meds.includes(m))d.meds.push(m);persist();render();toast(`「${m}」を登録したよ`);break}
   case'med-remove':S.meds=S.meds.filter(m=>m!==a.dataset.name);persist();render();break;
   case'term':{const g=GL[a.dataset.k];sheet(`<h2>${g.t}</h2><p>${g.one}</p><p class="small muted">${g.rel}</p><div class="row"><button class="btn sm" data-act="gloss" data-k="${a.dataset.k}">言葉の一覧で見る</button><button class="btn sm ghost" data-act="sheet-close">とじる</button></div>`);break}
-  case'doit':{const it=ITEMS.find(i=>i.id===a.dataset.id);const d=day(todayKey(),true);const idx=d.ex.findIndex(e=>e.src===it.id);if(idx>=0){d.ex.splice(idx,1);toast(`「${it.name}」を取り消したよ`)}else{const ent={g:it.g,name:it.name,memo:'',src:it.id};if(it.g==='st'){ent.part=it.part;ent.weight='';ent.reps=''}d.ex.push(ent);toast(`「${it.name}」を今日の記録に入れたよ ♡`)}persist();const y=window.scrollY;render();window.scrollTo(0,y);break}
+  case'doit':{const it=ITEMS.find(i=>i.id===a.dataset.id);const d=day(todayKey(),true);const idx=d.ex.findIndex(e=>e.src===it.id);if(idx>=0){d.ex.splice(idx,1);toast(`「${it.name}」を取り消したよ`)}else{const ent={g:it.g,name:it.name,memo:'',src:it.id};if(it.g==='st'){ent.part=it.part;ent.weight='';ent.reps=''}d.ex.push(ent);toast(`「${it.name}」を入れたよ ♡ 回数やメモも書けるよ`)}persist();const y=window.scrollY;render();window.scrollTo(0,y);break}
   case'go-massage':go('record',{});ui.open='ex';ui.exForm={g:'massage',part:MPARTS[0],tool:'手'};render();break;
   case'cal-mode':S.settings.calMode=a.dataset.v;persist();render();break;
   case'cal-metric':S.settings.calMetric=a.dataset.v;persist();render();break;
