@@ -1,0 +1,1038 @@
+<title>からだログ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=M+PLUS+Rounded+1c:wght@400;500;800&family=Quicksand:wght@500;700&display=swap">
+<style>
+/* Layout: phone diary column. Each role has its own shape: gradient hero, paper letter, cover cards for guides, fold-out rows for records, list rows for menus.
+   Skins (ピンク / 水色 / 白 / 黒) set on <html data-skin>; every color is a token. */
+:root{
+  --bg:#FFF3F7; --surface:#FFFFFF; --sunk:#FFE9F1; --ink:#3B2532; --muted:#8A6979; --line:#F5D3E1;
+  --accent:#FF5E9C; --accent-soft:#FFE0EC; --on-accent:#FFFFFF;
+  --sub:#4EA9EC; --sub-soft:#E2F1FD; --mint:#3DBE97; --mint-soft:#DDF5EC;
+  --lady:#A386E6; --lady-soft:#EFE8FD; --shadow:rgba(255,94,156,.16);
+  --grad:linear-gradient(135deg,#FF9CC2 0%,#FFC9DD 48%,#B4DDFB 100%); --hero-ink:#3B2532;
+  --round:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;
+  --latin:"Quicksand","M PLUS Rounded 1c",sans-serif;
+  --script:"Cormorant Garamond","Times New Roman",serif;
+  color-scheme:light;
+}
+:root[data-skin="blue"]{
+  --bg:#EFF7FF; --surface:#FFFFFF; --sunk:#E3F0FD; --ink:#1F3142; --muted:#62798E; --line:#CDE4F7;
+  --accent:#3A9FEA; --accent-soft:#DDEFFD; --on-accent:#FFFFFF;
+  --sub:#FF6FA5; --sub-soft:#FFE6EF; --mint:#36B892; --mint-soft:#DAF3EA;
+  --lady:#9A82E2; --lady-soft:#EDE8FC; --shadow:rgba(58,159,234,.16);
+  --grad:linear-gradient(135deg,#8ACBF8 0%,#C3E5FC 50%,#FFCBDE 100%); --hero-ink:#1F3142; color-scheme:light}
+:root[data-skin="white"]{
+  --bg:#FAF9FA; --surface:#FFFFFF; --sunk:#F3F0F3; --ink:#232026; --muted:#76707A; --line:#E8E2E8;
+  --accent:#EC6A9D; --accent-soft:#FCE6EF; --on-accent:#FFFFFF;
+  --sub:#5BAFEA; --sub-soft:#E5F3FD; --mint:#3BB892; --mint-soft:#E0F5EE;
+  --lady:#A08AE0; --lady-soft:#F0ECFC; --shadow:rgba(30,20,30,.07);
+  --grad:linear-gradient(135deg,#FAD3E2 0%,#FFFFFF 50%,#D4EBFB 100%); --hero-ink:#232026; color-scheme:light}
+:root[data-skin="black"]{
+  --bg:#141016; --surface:#201A23; --sunk:#18131A; --ink:#F7EDF2; --muted:#B59CAA; --line:#3A2D37;
+  --accent:#FF7EB3; --accent-soft:#3D2131; --on-accent:#1A0E14;
+  --sub:#8FD0FF; --sub-soft:#1D2B37; --mint:#7DDFC0; --mint-soft:#1A302A;
+  --lady:#C6AEFF; --lady-soft:#2D2440; --shadow:rgba(0,0,0,.45);
+  --grad:linear-gradient(135deg,#5C2A44 0%,#3A2136 50%,#26324A 100%); --hero-ink:#F7EDF2; color-scheme:dark}
+*{box-sizing:border-box}
+body{background-color:var(--bg);background-image:radial-gradient(130% 50% at 50% -10%,var(--accent-soft) 0%,transparent 70%);background-repeat:no-repeat;color:var(--ink);font-family:var(--round);font-size:16px;line-height:1.75;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+h1,h2,h3{font-family:var(--round);font-weight:800;line-height:1.4;text-wrap:balance;margin:0;letter-spacing:.02em}
+h1{font-size:1.5rem}
+h2{font-size:1.1rem}
+h3{font-size:1rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.84rem}
+.num{font-family:var(--latin);font-variant-numeric:tabular-nums}
+.en{font-family:var(--script);font-style:italic;font-weight:500;letter-spacing:.02em;line-height:1.2}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 16px;padding:10px max(16px,env(safe-area-inset-left,0px))}
+.bar-in{display:flex;align-items:center;gap:8px;max-width:560px;margin:0 auto}
+.back{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);color:var(--accent);display:grid;place-items:center;font-size:1.2rem;line-height:1;box-shadow:0 2px 8px var(--shadow)}
+.crumbs{display:flex;gap:4px;align-items:center;overflow-x:auto;white-space:nowrap;font-size:.8rem;min-width:0;scrollbar-width:none}
+.crumbs::-webkit-scrollbar{display:none}
+.crumbs button{background:none;border:0;padding:2px;color:var(--muted)}
+.crumbs .sep{color:var(--accent);opacity:.6}
+.crumbs .here{color:var(--ink);font-weight:800}
+.banner{background:var(--sub-soft);border-radius:16px;padding:10px 14px;font-size:.85rem;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner.warn{background:var(--accent-soft)}
+
+/* buttons */
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 18px;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:800;box-shadow:0 4px 12px var(--shadow)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 14px;font-size:.85rem}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:800;font-size:.85rem}
+.heart{border:0;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:800;flex:none}
+.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--accent);color:var(--on-accent);border:2px solid var(--surface);border-radius:999px;padding:12px 22px;font-weight:800;font-size:1rem;box-shadow:0 8px 22px var(--shadow)}
+
+/* hero + letter */
+.hero{background:var(--grad);color:var(--hero-ink);border-radius:30px;padding:22px 20px 20px;margin-top:10px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.hero::after{content:"✦";position:absolute;right:20px;top:14px;font-size:1.3rem;opacity:.55}
+.hero::before{content:"♡";position:absolute;right:46px;top:40px;font-size:.9rem;opacity:.45}
+.hero .en{font-size:1.15rem;opacity:.85}
+.hero h1{font-size:1.55rem}
+.hero .cheer{font-size:.95rem;opacity:.9}
+.pill{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.75);color:#3B2532;border-radius:999px;padding:4px 12px;font-size:.82rem}
+:root[data-skin="black"] .pill{background:rgba(0,0,0,.35);color:var(--ink)}
+.pill b{color:var(--lady)}
+.letter{background:var(--surface);border-radius:6px 26px 26px 26px;padding:18px 20px 16px;position:relative;box-shadow:0 8px 22px var(--shadow)}
+.letter .from{display:flex;align-items:baseline;gap:8px;font-size:.8rem;font-weight:800;color:var(--accent)}
+.letter .from .en{font-size:1rem}
+.letter p{white-space:pre-wrap;margin-top:6px}
+.letter .stamp{position:absolute;right:16px;top:-10px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:.85rem;box-shadow:0 3px 8px var(--shadow)}
+.duo{display:grid;grid-template-columns:1fr auto;gap:10px}
+.cta{display:flex;justify-content:space-between;align-items:center;text-align:left;border:0;border-radius:24px;padding:16px 18px;background:var(--accent);color:var(--on-accent);box-shadow:0 8px 20px var(--shadow)}
+.cta b{font-size:1.1rem;font-weight:800;display:block}
+.cta .lead{font-size:.8rem;opacity:.9}
+.cta .arrow{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.28);display:grid;place-items:center;flex:none}
+.cal-mini{width:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:var(--surface);border-radius:24px;padding:10px;box-shadow:0 4px 14px var(--shadow)}
+.cal-mini .mo{font-size:.68rem;color:var(--accent);font-weight:800;letter-spacing:.1em}
+.cal-mini .big{font-family:var(--latin);font-weight:700;font-size:1.8rem;line-height:1}
+.cal-mini span:last-child{font-size:.7rem;color:var(--muted)}
+
+/* carousel + pick cards */
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:4px max(16px,env(safe-area-inset-left,0px)) 10px;scrollbar-width:none}
+.carousel::-webkit-scrollbar{display:none}
+.pick{flex:none;width:68%;max-width:230px;scroll-snap-align:start;border-radius:24px;overflow:hidden;background:var(--surface);box-shadow:0 6px 18px var(--shadow);display:flex;flex-direction:column;text-align:left;border:0;padding:0}
+.pick .cover{height:92px}
+.pick .in{padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.pick b{font-weight:800}
+.pick .t2{font-size:.76rem;color:var(--muted);line-height:1.5}
+.cover{position:relative;display:grid;place-items:center;color:var(--ink)}
+.cover .ico{width:38px;height:38px;stroke-width:1.5}
+.cover .time{position:absolute;left:10px;top:10px;background:var(--surface);color:var(--ink);border-radius:999px;padding:0 9px;font-size:.72rem;font-weight:800}
+.g-st{background:linear-gradient(140deg,color-mix(in srgb,var(--sub) 38%,var(--surface)),color-mix(in srgb,var(--sub) 12%,var(--surface)))}
+.g-yoga{background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 36%,var(--surface)),color-mix(in srgb,var(--accent) 10%,var(--surface)))}
+.g-cardio{background:linear-gradient(140deg,color-mix(in srgb,var(--mint) 38%,var(--surface)),color-mix(in srgb,var(--mint) 12%,var(--surface)))}
+.g-massage{background:linear-gradient(140deg,color-mix(in srgb,var(--lady) 38%,var(--surface)),color-mix(in srgb,var(--lady) 12%,var(--surface)))}
+.badges{display:flex;flex-wrap:wrap;gap:4px}
+.badge{font-size:.68rem;border-radius:999px;padding:0 8px;background:var(--sunk);color:var(--ink);line-height:1.7}
+.badge.lv1{background:var(--mint-soft);color:var(--mint)}
+.badge.lv2{background:var(--sub-soft);color:var(--sub)}
+.badge.lv3{background:var(--accent-soft);color:var(--accent)}
+
+/* item rows */
+.items{display:flex;flex-direction:column;gap:10px}
+.irow{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:20px;padding:10px 12px 10px 10px;box-shadow:0 3px 10px var(--shadow)}
+.irow .sq{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
+.irow .sq .ico{width:26px;height:26px}
+.irow .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;border:0;background:none;padding:0}
+.irow .mid b{font-weight:800}
+
+/* weekly + numbers */
+.yay{background:var(--surface);border-radius:26px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 14px var(--shadow)}
+.yay-nums{display:flex;gap:10px}
+.yay-num{flex:1;border-radius:20px;padding:10px 12px;text-align:center}
+.yay-num:first-child{background:var(--accent-soft)}
+.yay-num:last-child{background:var(--sub-soft)}
+.yay-num b{display:block;font-family:var(--latin);font-size:1.8rem;line-height:1.1}
+.yay-num:first-child b{color:var(--accent)}
+.yay-num:last-child b{color:var(--sub)}
+.yay-num span{font-size:.76rem}
+.yay ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.yay li{display:flex;gap:8px;align-items:baseline;font-size:.9rem}
+.yay li::before{content:"♡";color:var(--accent);flex:none}
+.yay li span{color:var(--muted);font-size:.78rem;margin-left:auto;flex:none}
+.rest{background:var(--sunk);border-radius:18px;padding:14px;text-align:center;font-size:.9rem}
+.numbers{border:1.5px dashed var(--line);border-radius:22px;padding:12px 16px}
+.numbers-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.stat{background:var(--surface);padding:10px 12px;min-width:0;border-radius:16px}
+.stat .k{font-size:.74rem;color:var(--muted)}
+.stat .v{font-family:var(--latin);font-size:1.45rem;font-weight:700;line-height:1.3}
+.stat .v small{font-family:var(--round);font-size:.72rem;font-weight:500;color:var(--muted);margin-left:3px}
+.stat .s{font-size:.74rem;color:var(--muted)}
+
+/* guide */
+.genres{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.genre{border:0;border-radius:22px;padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink)}
+.genre .ico{width:30px;height:30px;stroke-width:1.6}
+.genre b{font-weight:800;font-size:.95rem}
+.genre span{font-size:.7rem;opacity:.75}
+.cchips{display:flex;flex-wrap:wrap;gap:8px}
+.cchip{border:0;border-radius:999px;padding:7px 14px;font-weight:800;font-size:.88rem;color:var(--ink)}
+.c0{background:var(--accent-soft)}.c1{background:var(--sub-soft)}.c2{background:var(--mint-soft)}.c3{background:var(--lady-soft)}
+.list-rows{display:flex;flex-direction:column;background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:0 3px 10px var(--shadow)}
+.list-rows button{display:flex;gap:12px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:13px 16px;width:100%}
+.list-rows button:first-child{border-top:0}
+.list-rows .lt{flex:1;min-width:0}
+.list-rows small{color:var(--muted);font-size:.78rem;display:block;line-height:1.5}
+.list-rows .arrow{color:var(--accent)}
+.list-rows .ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none}
+.big-cover{border-radius:28px;padding:22px 20px;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.big-cover .ico{width:40px;height:40px;stroke-width:1.5}
+.know{background:var(--surface);border-left:4px solid var(--accent);border-radius:6px 20px 20px 6px;padding:14px 16px;box-shadow:0 3px 10px var(--shadow)}
+.know .eyebrow{color:var(--accent);font-weight:800;font-size:.78rem}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+.steps li{display:flex;gap:10px;align-items:flex-start;counter-increment:s}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-family:var(--latin);font-weight:700;font-size:.85rem;display:grid;place-items:center;margin-top:1px}
+.card-s{background:var(--surface);border-radius:22px;padding:16px;box-shadow:0 3px 10px var(--shadow)}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:65ch}
+.prose h3{margin-top:6px}
+.prose h3::before{content:"✦ ";color:var(--accent)}
+.prose ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.prose li::marker{color:var(--accent)}
+.term{border-top:1px solid var(--line);padding:12px 0;scroll-margin-top:80px}
+.term:first-child{border-top:0}
+.term b{font-weight:800}
+.term .rel{font-size:.86rem;color:var(--muted);margin-top:4px}
+.term.hl{background:var(--accent-soft);border-radius:12px;padding-inline:10px}
+.tag{display:inline-block;font-size:.7rem;border-radius:999px;padding:0 9px;font-weight:800;line-height:1.8}
+.tag.st{background:var(--sub-soft);color:var(--sub)}
+.tag.yoga{background:var(--accent-soft);color:var(--accent)}
+.tag.cardio{background:var(--mint-soft);color:var(--mint)}
+.tag.massage{background:var(--lady-soft);color:var(--lady)}
+
+/* record: fold-out rows */
+.prog{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;padding:8px 16px;box-shadow:0 3px 10px var(--shadow)}
+.prog .dots{display:flex;gap:5px}
+.prog .dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.prog .dots i.on{background:var(--accent)}
+.prog span{font-size:.88rem}
+.folds{display:flex;flex-direction:column;gap:10px}
+.fold{background:var(--surface);border-radius:22px;box-shadow:0 3px 10px var(--shadow);overflow:hidden}
+.fold-h{display:flex;gap:12px;align-items:center;width:100%;border:0;background:none;text-align:left;padding:14px 16px}
+.fold-h .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
+.fold-h .lt{flex:1;min-width:0}
+.fold-h b{font-weight:800;display:block}
+.fold-h small{display:block;font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold-h small.done{color:var(--accent)}
+.fold-h .chev{color:var(--accent);transition:transform .15s}
+.fold.open .fold-h .chev{transform:rotate(90deg)}
+.fold-b{padding:2px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.datenav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.datenav h1{font-size:1.25rem}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label,.lbl{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.inp,select.inp,textarea.inp{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:9px 12px;font-size:16px;line-height:1.55}
+.inp:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.inp{resize:vertical;min-height:4.6em}
+.inp::placeholder{color:var(--muted);opacity:.7}
+.unit{position:relative}
+.unit .inp{padding-right:42px}
+.unit em{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;font-size:.82rem;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.out{font-size:.82rem;color:var(--sub);font-weight:500;min-height:1.3em}
+.q{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--accent);background:var(--surface);font-size:.68rem;line-height:1;padding:0;color:var(--accent);display:inline-grid;place-items:center;font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 13px;font-size:.84rem}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:800}
+.chip.lady[aria-pressed="true"]{background:var(--lady);border-color:var(--lady)}
+.entry{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.entry:first-child{border-top:0;padding-top:0}
+.entry .body{flex:1;min-width:0}
+.entry .body p{overflow-wrap:anywhere}
+.x{flex:none;border:0;background:none;color:var(--muted);font-size:1.1rem;padding:0 4px}
+.meal{display:flex;gap:8px;align-items:flex-start}
+.meal .n{flex:none;width:48px;font-size:.8rem;color:var(--accent);font-weight:800;padding-top:10px}
+.meal textarea{min-height:2.8em}
+.addrow{display:flex;gap:6px;flex-wrap:wrap}
+.exform{background:var(--sunk);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+details.more summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+details.more[open] summary{margin-bottom:10px}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.tog{flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--line);position:relative;padding:0}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tog[aria-pressed="true"]{background:var(--accent)}
+.tog[aria-pressed="true"]::after{left:23px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice button{border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:10px;font-weight:800}
+.choice button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.okmsg{font-weight:800;color:var(--accent)}
+
+/* settings panels */
+.panel{background:var(--surface);border-radius:22px;padding:16px;box-shadow:0 3px 10px var(--shadow)}
+.skins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.skin{border:2px solid var(--line);border-radius:16px;padding:8px 4px 6px;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.78rem}
+.skin i{width:34px;height:34px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.08)}
+.skin[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* calendar */
+.seg{display:inline-flex;border-radius:999px;padding:3px;background:var(--sunk)}
+.seg button{border:0;background:none;border-radius:999px;padding:4px 14px;font-size:.84rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent);font-weight:800;box-shadow:0 1px 4px var(--shadow)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .wd{font-size:.72rem;text-align:center;color:var(--muted);padding-bottom:2px}
+.cal .wd:first-child{color:var(--accent)}
+.cal .wd:last-child{color:var(--sub)}
+.cell{border:1.5px solid transparent;background:var(--sunk);border-radius:12px;min-height:52px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.cell .d{font-family:var(--latin);font-weight:700;font-size:.82rem;line-height:1.2}
+.cell .marks{font-size:.62rem;line-height:1.1;display:flex;gap:2px}
+.cell .marks .m{color:var(--lady)}
+.cell .marks .h{color:var(--accent)}
+.cell.out{background:transparent;color:var(--muted);opacity:.45}
+.cell.today{border-color:var(--accent);background:var(--surface)}
+.cell.per{background:var(--lady-soft)}
+.cell.pred{border:1.5px dashed var(--lady)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+.week{display:flex;flex-direction:column}
+.wrow{display:grid;grid-template-columns:56px 1fr;gap:10px;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:10px 0;width:100%}
+.wrow:first-child{border-top:0}
+.wrow .dd b{display:block;font-family:var(--latin);font-size:1.15rem;line-height:1.2}
+.wrow .dd span{font-size:.72rem;color:var(--muted)}
+.wrow .sm{font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto;max-width:100%}
+.chart text{fill:var(--muted);font-size:9px;font-family:var(--latin)}
+
+/* sheet + toast */
+.scrim{position:fixed;inset:0;background:rgba(20,10,16,.35);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:26px 26px 0 0;padding:20px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));max-height:80vh;overflow-y:auto}
+.sheet-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--surface);padding:8px 18px;border-radius:999px;font-size:.85rem;max-width:calc(100% - 32px);text-align:center}
+
+/* onboarding */
+.ob{padding-top:24px}
+.ob .hero{padding:28px 22px}
+.ob .logo .en{font-size:2.6rem;line-height:1}
+.ob .logo .ja{font-weight:800;font-size:.9rem;letter-spacing:.2em;opacity:.75}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div id="app"></div>
+<div id="sheetRoot"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/* ===== アイコン ===== */
+const IC={
+ st:'<path d="M3 10v4M6.5 7.5v9M17.5 7.5v9M21 10v4M6.5 12h11"/>',
+ yoga:'<circle cx="12" cy="5" r="2"/><path d="M12 7.5v5.5M5 10.5l7 2.5 7-2.5M7.5 20l4.5-7 4.5 7"/>',
+ cardio:'<path d="M2.5 16c2.5 0 3.5-7 6.5-7s3.5 7 6.5 7 3.5-4 6-4"/>',
+ massage:'<path d="M12 3.5v3.5M12 17v3.5M3.5 12H7M17 12h3.5M6 6l2.4 2.4M15.6 15.6 18 18M6 18l2.4-2.4M15.6 8.4 18 6"/>',
+ seed:'<path d="M12 21v-9M12 12c0-4 3-6.5 7.5-6.5 0 4.5-3 6.5-7.5 6.5zM12 14.5c0-3-2-5.5-6.5-5.5 0 3.5 2 5.5 6.5 5.5z"/>',
+ bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>',
+ chat:'<path d="M4 5h16v11H9.5L4 20z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/>',
+ body:'<circle cx="12" cy="5" r="2.2"/><path d="M8 21l1-8-3-4h12l-3 4 1 8"/>',
+ food:'<path d="M5 3v8a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 1.5-2.5 4-2.5 7h3V21M16.5 10V3"/>',
+ pill:'<rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.2 7.9l5.6 8.2"/>',
+ letter:'<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.5M12 19v2.5M21.5 12H19M5 12H2.5M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8M18.7 18.7l-1.8-1.8M7.1 7.1 5.3 5.3"/>',
+};
+const icon=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`;
+
+/* ===== データ ===== */
+const LD='月経';
+const PARTS=['腹・体幹','背中','胸','肩・腕','お尻','脚'];
+const MPARTS=['顔','首','肩','背中','腰','お腹','二の腕','手','お尻','太もも','ふくらはぎ','足裏'];
+const GENRES={st:'筋トレ',yoga:'ヨガ',cardio:'有酸素'};
+const LV={1:'初心者◎',2:'ふつう',3:'ちょいきつ'};
+const YOGA_T=['起きてすぐ','寝る前',LD+'中',LD+'前後','むくみ','肩こり'];
+
+const CONCERNS=[
+ {id:'belly',name:'お腹ぽっこり',first:'下っ腹が出て見えるのは、脂肪だけじゃなく反り腰やお腹の奥のインナー（腹横筋）の弱さのことも。腹筋運動だけではお腹の脂肪だけを落とせないから、インナー・背中・全身の運動を組み合わせよう。',art:'belly'},
+ {id:'waist',name:'くびれ',first:'脇腹の腹斜筋を鍛えると、引き締まった印象に近づく。脂肪はお腹だけ狙って落とせないので、全身の消費とセットで。',art:'spot'},
+ {id:'arm',name:'二の腕',first:'二の腕のたるみは主に腕の裏側（上腕三頭筋）。普段あまり使わない場所だから、軽い負荷でもちゃんと効く。',art:'spot'},
+ {id:'leg',name:'脚・太もも',first:'脚には全身でいちばん大きな筋肉があるから、鍛えると消費も上がりやすい。張りやむくみが気になる日は、ほぐしとセットで。',art:'spot'},
+ {id:'hip',name:'ヒップ',first:'お尻の筋肉は座りっぱなしだと使われにくく、たるみや姿勢の崩れにつながる。持ち上げる・後ろに蹴る動きが効く。',art:'back'},
+ {id:'posture',name:'姿勢・背中',first:'猫背や反り腰は、お腹が出て見える原因にも。背中と体幹を一緒に鍛えると、立ち姿が変わる。',art:'back'},
+ {id:'swelling',name:'むくみ',first:'むくみは体に水分がたまった状態で、脂肪とは別もの。ふくらはぎを動かす・脚を上げる・ほぐすのが近道。',art:null},
+ {id:'cold',name:'冷え',first:'筋肉は体の熱をつくる場所。脚やお尻の大きな筋肉を動かすと、体が温まりやすい。',art:null},
+ {id:'sleep',name:'寝つき',first:'寝る直前の激しい運動は目がさえやすいから、ゆったりしたヨガがおすすめ。寝る時間が毎日違っても、「寝る前」に同じ流れを作るのがコツ。',art:null},
+ {id:'period',name:LD+'前後',first:LD+'の前は水分をため込みやすく、体重が一時的に増えやすい時期。体調に合わせて、軽めのメニューに切り替えてOK。',art:'cycle',lady:true},
+ {id:'shoulder',name:'肩こり',first:'同じ姿勢が続くと肩甲骨まわりが固まりやすい。こりの強い日は「ほぐす→動かす」の順で。',art:null},
+];
+
+const ITEMS=[
+ {id:'drawin',g:'st',part:'腹・体幹',name:'ドローイン',min:'1分',pos:'寝ながら',lv:1,target:'腹横筋（お腹の奥のインナー）',steps:['仰向けで膝を立てる','鼻から息を吸ってお腹をふくらませる','口から細く長く吐きながら、おへそを背骨に近づけるようにへこませる','へこませたまま浅い呼吸で10〜30秒キープ'],point:'座ったまま・立ったままでもできる。移動中や待ち時間にこまめに。',c:['belly','posture']},
+ {id:'plank',g:'st',part:'腹・体幹',name:'プランク',min:'1分',pos:'床で',lv:2,target:'体幹全体（腹横筋・腹直筋など）',steps:['うつ伏せで肘を肩の真下につく','つま先を立てて体を持ち上げ、頭からかかとまで一直線に','お腹をへこませたまま20〜60秒キープ'],point:'きつい場合は膝をついてOK。',caution:'腰が反ったりお尻が上がりすぎたりすると、お腹に効かず腰を痛めやすい。',c:['belly','posture']},
+ {id:'deadbug',g:'st',part:'腹・体幹',name:'デッドバグ',min:'3分',pos:'寝ながら',lv:2,target:'腹横筋・腹直筋（反り腰対策に）',steps:['仰向けで両腕を天井へ伸ばし、膝を90度に曲げて脚を上げる','腰と床のすき間をなくすように押しつける','右腕と左脚をゆっくり床に近づけて戻す。反対側も同様に','左右交互に8〜12回'],point:'腰が床から浮かない範囲だけ動かすのがコツ。',c:['belly','posture']},
+ {id:'crunch',g:'st',part:'腹・体幹',name:'クランチ',min:'3分',pos:'寝ながら',lv:1,target:'腹直筋（お腹の前側）',steps:['仰向けで膝を立て、手は胸の前か耳の横に','息を吐きながら、肩甲骨が床から離れるくらいまで上体を丸める','ゆっくり戻す。10〜15回'],point:'起き上がりきらなくていい。おへそをのぞきこむように丸める。',caution:'手で頭を引っぱると首を痛めやすい。',c:['belly']},
+ {id:'russian',g:'st',part:'腹・体幹',name:'ロシアンツイスト',min:'3分',pos:'座って',lv:2,target:'腹斜筋（脇腹）',steps:['座って膝を曲げ、上体を少し後ろに倒す','胸の前で手を組み、体ごと左右にひねる','左右交互に10〜20回'],point:'くびれまわりを鍛えたい人向け。下っ腹ぽっこりが悩みなら、ドローインやデッドバグを優先しよう。',caution:'腰に不安がある人は、かかとを床につけたまま。',c:['waist']},
+ {id:'sideplank',g:'st',part:'腹・体幹',name:'サイドプランク',min:'2分',pos:'床で',lv:2,target:'腹斜筋・体の横側',steps:['横向きに寝て、肘を肩の真下につく','膝を曲げたまま（慣れたら伸ばして）腰を持ち上げる','頭から膝（かかと）まで一直線で15〜30秒。反対側も'],c:['waist','posture']},
+ {id:'backex',g:'st',part:'背中',name:'バックエクステンション',min:'3分',pos:'うつ伏せ',lv:1,target:'脊柱起立筋（背骨沿いの筋肉）',steps:['うつ伏せで両手を耳の横に','息を吐きながら胸を床から少し浮かせる','1〜2秒止めてゆっくり下ろす。10〜15回'],caution:'反りすぎない。おへそは床につけたまま。',c:['posture','belly']},
+ {id:'birddog',g:'st',part:'背中',name:'バードドッグ',min:'3分',pos:'四つ這い',lv:1,target:'背中・お尻・体幹',steps:['四つ這いになり、手は肩の下、膝は股関節の下に','右腕と左脚をまっすぐ伸ばし、床と平行に','2〜3秒キープして戻す。左右交互に8〜12回'],point:'腰が反らない・体が傾かない範囲で。',c:['posture','belly','hip']},
+ {id:'row',g:'st',part:'背中',name:'ペットボトルローイング',min:'5分',pos:'椅子で',lv:2,target:'広背筋・肩甲骨まわり',steps:['2Lペットボトル（またはダンベル）を片手に持ち、反対の手と膝を椅子につく','背中をまっすぐにしたまま、肘を後ろに引き上げる','肩甲骨を寄せる意識でゆっくり戻す。左右10〜15回'],c:['posture','shoulder']},
+ {id:'pushup',g:'st',part:'胸',name:'膝つき腕立て伏せ',min:'3分',pos:'床で',lv:2,target:'大胸筋・二の腕の裏',steps:['手を肩幅より少し広めにつき、膝をついたまま頭から膝まで一直線に','胸を床に近づけるように肘を曲げる','床を押して戻る。8〜12回'],c:['arm']},
+ {id:'dips',g:'st',part:'肩・腕',name:'椅子ディップス',min:'3分',pos:'椅子で',lv:2,target:'上腕三頭筋（二の腕の裏）',steps:['椅子のふちに手をつき、お尻を前に出す','肘を後ろに曲げて体を下ろす','腕で押して戻る。8〜12回'],caution:'安定した椅子で。肩が痛むときは浅めに。',c:['arm']},
+ {id:'kickback',g:'st',part:'肩・腕',name:'キックバック',min:'3分',pos:'立って',lv:1,target:'上腕三頭筋（二の腕の裏）',steps:['ペットボトルを持ち、上体を前に倒して肘を体の横で固定','肘から先を後ろに伸ばす','ゆっくり戻す。左右10〜15回'],point:'500mlペットボトルから始めてOK。',c:['arm']},
+ {id:'hiplift',g:'st',part:'お尻',name:'ヒップリフト',min:'3分',pos:'寝ながら',lv:1,target:'大殿筋（お尻）・もも裏',steps:['仰向けで膝を立て、足は腰幅に','かかとで床を押してお尻を持ち上げ、肩から膝まで一直線に','お尻を締めて1〜2秒止め、ゆっくり下ろす。12〜15回'],caution:'腰を反らせすぎない。',c:['hip','posture','belly']},
+ {id:'donkey',g:'st',part:'お尻',name:'ドンキーキック',min:'3分',pos:'四つ這い',lv:1,target:'大殿筋（お尻）',steps:['四つ這いになる','膝を90度に曲げたまま、足裏で天井を押すように片脚を上げる','ゆっくり下ろす。左右12〜15回'],c:['hip']},
+ {id:'squat',g:'st',part:'脚',name:'スクワット',min:'3分',pos:'立って',lv:2,target:'太もも・お尻',steps:['足を肩幅に開き、つま先はやや外向き','椅子に座るようにお尻を後ろに引きながらしゃがむ','太ももが床と平行くらいまで下げ、かかとで押して立つ。10〜15回'],point:'大きな筋肉を使うので消費が多く、体も温まりやすい。',caution:'膝がつま先より内側に入らないように。',c:['leg','hip','cold']},
+ {id:'widesquat',g:'st',part:'脚',name:'ワイドスクワット',min:'3分',pos:'立って',lv:2,target:'内もも・お尻',steps:['足を肩幅の1.5〜2倍に開き、つま先を外へ','膝とつま先を同じ向きにしたまましゃがむ','内ももを使って立ち上がる。10〜15回'],c:['leg','hip']},
+ {id:'lunge',g:'st',part:'脚',name:'ランジ',min:'5分',pos:'立って',lv:3,target:'太もも・お尻',steps:['足を腰幅で立ち、片足を大きく前に踏み出す','後ろの膝を床に近づけるように腰を落とす','前の足で床を押して戻る。左右8〜12回'],caution:'ふらつく場合は壁に手をそえて。',c:['leg','hip']},
+ {id:'calf',g:'st',part:'脚',name:'カーフレイズ',min:'2分',pos:'立って',lv:1,target:'ふくらはぎ',steps:['壁や椅子に手をそえて立つ','かかとをゆっくり上げてつま先立ちに','ゆっくり下ろす。15〜20回'],point:'ふくらはぎは脚の血液を押し戻すポンプ役。座りっぱなし・立ちっぱなしのあとに。',c:['swelling','cold','leg']},
+ {id:'catcow',g:'yoga',name:'キャット＆カウ',min:'2分',pos:'四つ這い',lv:1,target:'背骨まわり',steps:['四つ這いになる','吐きながら背中を丸めて、おへそをのぞく','吸いながら胸を開いて、目線を前へ','呼吸に合わせて5〜10回'],t:['起きてすぐ','肩こり',LD+'前後'],c:['posture','shoulder','period']},
+ {id:'child',g:'yoga',name:'チャイルドポーズ',min:'2分',pos:'床で',lv:1,target:'背中・腰',steps:['正座から上体を前に倒し、おでこを床へ','腕は前に伸ばすか、体の横に','深い呼吸で30秒〜2分'],t:['寝る前',LD+'中'],c:['sleep','period']},
+ {id:'cobra',g:'yoga',name:'コブラのポーズ',min:'1分',pos:'うつ伏せ',lv:1,target:'背中・お腹の前側',steps:['うつ伏せで手を胸の横に','吸いながら胸を持ち上げる。肘は軽く曲げたまま','肩を耳から離して3〜5呼吸'],caution:'腰が痛いときは、肘をついたスフィンクスのポーズに。',t:['起きてすぐ'],c:['posture']},
+ {id:'downdog',g:'yoga',name:'ダウンドッグ',min:'1分',pos:'床で',lv:2,target:'もも裏・ふくらはぎ・肩',steps:['四つ這いから、つま先を立ててお尻を高く持ち上げる','膝は曲げてもOK。背中を伸ばすことを優先','5呼吸キープ'],caution:'体調がつらい日や、めまいがする日は控えめに。',t:['起きてすぐ','むくみ'],c:['swelling','shoulder','leg']},
+ {id:'baddha',g:'yoga',name:'合せきのポーズ',min:'2分',pos:'座って',lv:1,target:'股関節・内もも',steps:['座って足裏を合わせ、かかとを体に引き寄せる','背すじを伸ばし、吐きながら上体を少し前へ','5〜10呼吸'],t:[LD+'前後','寝る前'],c:['period','cold']},
+ {id:'twist',g:'yoga',name:'仰向けのねじり',min:'2分',pos:'寝ながら',lv:1,target:'腰・背中',steps:['仰向けで両膝を立てる','両膝をそろえて右側へ倒し、顔は左へ','5呼吸したら反対側も'],t:['寝る前',LD+'前後'],c:['sleep','posture','waist']},
+ {id:'legsup',g:'yoga',name:'壁に脚を上げるポーズ',min:'5分',pos:'寝ながら',lv:1,target:'脚全体',steps:['壁の近くに座り、お尻を壁に寄せながら仰向けになる','脚を壁に沿わせて上げる','力を抜いて3〜5分'],caution:'体調がつらい日に違和感があれば、別のポーズに。',t:['寝る前','むくみ'],c:['swelling','sleep','leg']},
+ {id:'thread',g:'yoga',name:'針の糸通し',min:'2分',pos:'四つ這い',lv:1,target:'肩・肩甲骨まわり',steps:['四つ這いから、右腕を左腕の下にくぐらせる','右肩と右側頭部を床におろす','5呼吸したら反対側'],t:['肩こり','寝る前'],c:['shoulder','posture']},
+ {id:'pigeon',g:'yoga',name:'仰向けの鳩のポーズ',min:'2分',pos:'寝ながら',lv:1,target:'お尻・股関節',steps:['仰向けで右足首を左膝の上にのせる','左もも裏を両手で抱えて胸に引き寄せる','お尻が伸びるのを感じながら5〜8呼吸。反対側も'],t:['寝る前'],c:['hip','leg']},
+ {id:'warrior2',g:'yoga',name:'戦士のポーズII',min:'2分',pos:'立って',lv:2,target:'脚・体幹',steps:['脚を大きく開き、右つま先を外へ向ける','右膝を曲げて、かかとの真上に','両腕を床と平行に伸ばし、右手の先を見て5呼吸。反対側も'],t:['起きてすぐ'],c:['leg','hip']},
+ {id:'savasana',g:'yoga',name:'シャバーサナ',min:'5分',pos:'寝ながら',lv:1,target:'全身のリラックス',steps:['仰向けで手脚を楽に開く','目を閉じ、体の重さを床にあずける','自然な呼吸で3〜10分'],t:['寝る前',LD+'中'],c:['sleep','period']},
+ {id:'walk',g:'cardio',name:'ウォーキング',min:'10分〜',pos:'外で',lv:1,target:'全身',steps:['少し息がはずむくらいの早歩き','腕を後ろに引くように振る','まずは10分から。慣れたら20〜30分'],point:'仕事の移動や買い物の歩きも立派な有酸素。',c:['belly','leg','cold','swelling']},
+ {id:'stepup',g:'cardio',name:'踏み台昇降',min:'10分〜',pos:'家で',lv:1,target:'脚・お尻',steps:['階段の一段目や、安定した台を使う','右足から上がり、左足をそろえる。右足から下りる','テレビや動画を見ながら10〜20分'],point:'天気や時間を気にせず家でできる。',caution:'台が滑らないか確認してから。',c:['belly','leg','hip']},
+ {id:'march',g:'cardio',name:'その場もも上げ',min:'5分',pos:'家で',lv:2,target:'全身',steps:['その場で足踏みしながら、ももを腰の高さに近づける','腕もしっかり振る','30秒動いて30秒休む×5セット'],point:'ジャンプしないので、音が気になる部屋でもOK。',c:['belly','cold']},
+ {id:'bike',g:'cardio',name:'エアロバイク・自転車',min:'20分〜',pos:'マシン',lv:1,target:'脚',steps:['会話ができるくらいの強さでこぐ','20〜30分を目安に'],point:'膝への負担が少ない。',c:['leg','belly']},
+ {id:'dance',g:'cardio',name:'ダンス',min:'10分',pos:'家で',lv:1,target:'全身',steps:['好きな曲を2〜3曲流して踊る','振りは自己流でOK'],point:'楽しいことが一番続く。',c:['belly','cold']},
+];
+
+const TOOLS=[
+ {id:'roller',name:'筋膜ローラー',parts:'ふくらはぎ・太もも・お尻・背中',how:['ほぐしたい場所をローラーにのせ、体重をかけてゆっくり転がす','痛気持ちいい場所で20〜30秒止まって呼吸','1か所1〜2分まで'],alt:'中身の入った2Lペットボトル（硬すぎるときはタオルを巻く）',caution:'骨の上や腰の真ん中は避ける。'},
+ {id:'ball',name:'ほぐしボール',parts:'足裏・お尻・肩甲骨まわり',how:['床や壁と体のあいだにはさんで体重をかける','小さく円を描くように動かす'],alt:'テニスボール',caution:'しびれが出る場所には当てない。'},
+ {id:'pole',name:'ストレッチポール',parts:'背中・胸',how:['背骨に沿ってポールの上に仰向けになる','腕を横に開いて胸を開く','5分ほど力を抜いて呼吸'],alt:'バスタオルを固く巻いたもの',caution:'降りるときは横に転がるように。猫背や巻き肩が気になる人に。'},
+ {id:'kassa',name:'かっさ',parts:'顔・首・脚',how:['オイルやクリームを塗ってすべりをよくする','肌をこすらないよう、やさしく一方向に流す'],alt:'スプーンの背',caution:'強くこすらない。赤みが出たらやめる。'},
+ {id:'gun',name:'筋膜リリースガン',parts:'太もも・ふくらはぎ・お尻',how:['弱めの設定から','1か所30秒〜1分程度、動かしながら当てる'],alt:null,caution:'首・骨・関節には当てない。'},
+];
+
+const BEG=[
+ {id:'gear',title:'宅トレでそろえるもの',sum:'買うなら何から？ 家にあるもので代用もできる',body:[
+  ['p','最初から全部そろえなくて大丈夫。家にあるもので始めて、続きそうなら買い足すくらいがちょうどいい。'],
+  ['h','あると便利なもの（と代用品）'],
+  ['ul',['ヨガマット：床が硬い・滑る対策。代用はバスタオルやラグ','ダンベル：通販で1〜3kgの組から。代用は2Lペットボトル（約2kg）や500mlペットボトル（約0.5kg）','トレーニングチューブ：腕や背中、お尻に。代用はフェイスタオルを両手で引っぱる','踏み台：踏み台昇降に。代用は階段の一段目','椅子：ディップスやバランスの支えに。キャスター付きは避ける']],
+  ['h','そろえなくていいもの'],
+  ['p','高いウェアや専用シューズは、家ならなくてOK。動きやすい服と、滑らない床があれば十分。']]},
+ {id:'load',title:'重さと回数の決め方',sum:'「あと2〜3回できる」で終えるのが目安',body:[
+  ['p','重さも回数も、決まった正解はない。このアプリで単位を自由入力にしているのはそのため。'],
+  ['ul',['最初は自分の体重だけ（自重）で、正しいフォームを覚える','「あと2〜3回できそう」で終わるくらいがちょうどいい','10〜15回×2〜3セットから始めて、楽になってきたら回数か重さを少し増やす','フォームが崩れたら、その日はそこで終わり']],
+  ['p','記録は「2Lボトル」「軽め15回」「30秒×3」みたいに、自分がわかる書き方でOK。']]},
+ {id:'freq',title:'頻度と休み方',sum:'毎日やらなくていい。休むのも計画のうち',body:[
+  ['ul',['同じ部位の筋トレは1〜2日あける','最初は週2〜3回から','ヨガやウォーキングは毎日でもOK','疲れている日は「起きてすぐ」や「寝る前」のヨガだけでも十分']],
+  ['p','生活リズムが不規則でも、「曜日」じゃなく「前回から何日あいたか」で考えると組みやすい。']]},
+ {id:'sore',title:'筋肉痛・痛みのとき',sum:'休むべき痛みと、動いていい張りの見分け方',body:[
+  ['ul',['筋肉痛がある部位は休ませて、別の部位やヨガ・ストレッチを','鋭い痛み、関節の痛み、腫れ、しびれがあるときは中止','痛みが何日も続くときは医療機関へ']],
+  ['p','筋肉痛が来ない＝効いていない、ではない。続けるうちに出にくくなるのは普通のこと。']]},
+ {id:'habit',title:'続けるコツ',sum:'全部書かなくていい。1つだけでも記録',body:[
+  ['ul',['書けない日があってもOK。空白の日は失敗じゃない','体重だけ、メモだけ、1つでも記録できたら十分','「明日の自分へ」に一言残すと、翌朝ホームに届く','夜型・夜勤の人は、設定の「1日の区切り」を自分の起きる時間に合わせよう']]]},
+];
+
+const KNOW=[
+ {id:'abs',title:'腹筋は3種類ある',sum:'腹直筋・腹斜筋・腹横筋、それぞれ何に効く？',body:[
+  ['p','「腹筋」とひとまとめにされがちだけど、役割の違う筋肉が重なってる。悩みに合う筋肉を選ぶと、遠回りしなくて済む。'],
+  ['h','腹直筋（お腹の前側）'],['p','いわゆるシックスパック。体を丸める動きで使う。代表はクランチ。'],
+  ['h','腹斜筋（脇腹）'],['p','体をひねる・横に倒す動きで使う。くびれまわりの印象に関わる。代表はロシアンツイスト、サイドプランク。'],
+  ['h','腹横筋（いちばん奥）'],['p','お腹をぐるっと囲むコルセットのような筋肉。お腹をへこませて内側から支える。代表はドローイン、プランク、デッドバグ。'],
+  ['h','悩み別に選ぶなら'],['ul',['下っ腹のぽっこりが気になる → まず腹横筋＋背中','くびれが欲しい → 腹斜筋','お腹の前側を引き締めたい → 腹直筋']]]},
+ {id:'belly',title:'下っ腹がぽっこりする理由',sum:'脂肪だけじゃない。姿勢やインナーの弱さも',body:[
+  ['p','お腹が前に出て見える理由は1つじゃない。原因がずれていると、頑張っても変化を感じにくい。'],
+  ['ul',['脂肪：お腹は脂肪がつきやすい場所。全身の消費を増やすことで少しずつ減る','反り腰・骨盤の傾き：骨盤が前に傾くと、お腹が前に押し出されて見える','インナーの弱さ：腹横筋が弱いと内臓を支えきれず、下腹が出やすい','一時的なもの：便秘やむくみ、ホルモンの変化による水分','背中の弱さ：猫背で肋骨が下がると、お腹がつぶれて前に出る']],
+  ['p','だから「腹筋だけ」より、ドローインなどのインナー、背中、お尻、全身の有酸素を組み合わせるのが近道。']]},
+ {id:'spot',title:'部分痩せはできない',sum:'お腹を鍛えても、お腹の脂肪だけは落ちない',body:[
+  ['p','脂肪は使われるとき、全身から少しずつ減っていく。どこから減るかは自分では選べない。お腹の筋トレを頑張っても、お腹の脂肪だけが先に減るわけじゃない。'],
+  ['h','じゃあ筋トレは意味がない？'],
+  ['ul',['筋肉がつくと、脂肪が減ったときの形がきれいに見える','大きな筋肉（脚・お尻・背中）を鍛えると消費が上がりやすい','姿勢がよくなると、それだけで見た目が変わる']],
+  ['p','お腹が気になっても、脚やお尻を鍛えるのは遠回りじゃない。']]},
+ {id:'back',title:'背中の筋肉が大事な理由',sum:'姿勢・ぽっこりお腹・消費、全部に関わる',body:[
+  ['ul',['姿勢を支える：背骨沿いの脊柱起立筋、背中の広背筋、肩甲骨まわりの筋肉が立ち姿を作る','お腹にも関わる：猫背になると、お腹がつぶれて前に出て見える','大きな筋肉：背中は面積が広く、鍛えると消費も上がりやすい','バランス：お腹側だけ鍛えると前後のバランスが崩れやすい']],
+  ['p','バックエクステンション、バードドッグ、ペットボトルローイングがおすすめ。']]},
+ {id:'plateau',title:'体重が減らない時期のこと',sum:'停滞期は失敗じゃない',body:[
+  ['p','順調に減っていた体重が、急に動かなくなる時期がある。体が「エネルギーが減ってる」と判断して、消費を節約しようとする働き（ホメオスタシス）が関係すると言われている。'],
+  ['ul',['体の水分量の増減でも、数字は簡単に上下する','ホルモンのリズムでも変わる','体重が止まっていても、サイズや見た目は変わっていることがある']],
+  ['p','サイズの記録（ウエスト・ヒップなど）をつけておくと、体重以外の変化に気づきやすい。']]},
+ {id:'cycle',title:LD+'と体重・体温',sum:'低温期・高温期と、増えやすい時期',lady:true,body:[
+  ['p','基礎体温は、'+LD+'の始まりから排卵までの低温期と、排卵後から次の'+LD+'までの高温期に分かれることが多い。'],
+  ['ul',[LD+'前（高温期の後半）は水分をため込みやすく、体重が一時的に増えやすい','始まって数日たつと、むくみが引いて戻ることが多い','体重を比べるなら、周期の同じ時期どうしで比べると落ち込みにくい']],
+  ['p','周期が不規則な人もいる。乱れやつらさが気になるときは婦人科へ。']]},
+ {id:'weigh',title:'体重のはかり方',sum:'1日の数字より、1〜2週間の流れを見る',body:[
+  ['ul',['体重は1日の中でも1〜2kg変わるのが普通','はかるなら同じ条件で：起きてすぐ、トイレのあと','毎日の上下より、1〜2週間の流れで見る','カレンダーの推移グラフで流れを確認できる']]]},
+];
+
+const GLOSS=[
+ {g:'体の数値',items:[
+  {k:'bmi',t:'BMI',one:'身長に対する体重のバランスを表す数字。体重(kg)÷身長(m)÷身長(m)で出す。',rel:'筋肉と脂肪の区別はしないので、筋肉が多い人は高めに出る。見た目や体調とあわせて参考程度に。'},
+  {k:'fat',t:'体脂肪率',one:'体重のうち、脂肪が占める割合。',rel:'体組成計で測る。同じ体重でも体脂肪率が違えば見た目は変わる。測る時間で数字がぶれやすい。'},
+  {k:'lbm',t:'除脂肪体重（LBM）',one:'体重から脂肪の重さを引いたもの。筋肉・骨・水分・内臓などの重さ。',rel:'体重×(1−体脂肪率)で計算。減量中にLBMが大きく減っていたら、筋肉が落ちているサインかも。'},
+  {k:'comp',t:'体組成',one:'体が何でできているかの内訳。脂肪、筋肉、水分、骨など。',rel:'体重だけでなく中身を見ると、変化に気づきやすい。'},
+  {k:'bmr',t:'基礎代謝（BMR）',one:'何もしなくても、呼吸や体温の維持などで使われるエネルギー。',rel:'1日の消費のなかで一番大きい部分。筋肉量が多いほど高くなりやすい。'},
+  {k:'tdee',t:'TDEE',one:'1日の総消費エネルギー。基礎代謝＋体を動かした分＋食事の消化で使う分。',rel:'食べる量がTDEEより少なければ体重は減りやすく、多ければ増えやすい。'},
+  {k:'neat',t:'NEAT',one:'運動以外の日常の動きで使うエネルギー。歩く、家事、立つなど。',rel:'人によって差が大きい。こまめに動くだけでも消費は変わる。'}]},
+ {g:'食事',items:[
+  {k:'pfc',t:'PFCバランス',one:'タンパク質（P）・脂質（F）・炭水化物（C）の割合。',rel:'カロリーが同じでも、中身のバランスで満足感や体の変化が変わる。'},
+  {k:'under',t:'アンダーカロリー',one:'食べた量が消費より少ない状態。',rel:'体重を減らすときの基本。ただ極端に少ないと筋肉が落ちたり、続かなくなったりする。'},
+  {k:'over',t:'オーバーカロリー',one:'食べた量が消費より多い状態。',rel:'筋肉を増やしたいときに意図的に作ることもある。'},
+  {k:'gi',t:'GI値',one:'食べたあと、血糖値がどれくらい上がりやすいかの目安。',rel:'低GIの食べ物は血糖値がゆるやかに上がり、腹持ちがいいと言われる。'},
+  {k:'cheat',t:'チートデイ',one:'減量中に、意図的に多めに食べる日。',rel:'気持ちのリセットになる人もいれば、逆に崩れる人もいる。合うかどうかは人による。'},
+  {k:'lowcarb',t:'糖質制限',one:'ごはん・パン・麺・甘いものなど、糖質を減らす食べ方。',rel:'最初は水分が抜けて体重が早く落ちやすい。極端にやると続かないことも。'},
+  {k:'lowfat',t:'脂質制限',one:'揚げ物や脂身など、脂質を減らす食べ方。',rel:'脂質は少量でもカロリーが高いので、減らすと全体の量を調整しやすい。'}]},
+ {g:'減量の流れ',items:[
+  {k:'plateau',t:'停滞期',one:'続けているのに体重が減らなくなる時期。',rel:'多くの人に起きる普通のこと。サイズや見た目の変化も合わせて見よう。'},
+  {k:'homeo',t:'ホメオスタシス',one:'体の状態を一定に保とうとする働き。',rel:'急に食べる量が減ると、体が消費を節約しようとすると言われる。停滞期の説明によく使われる。'},
+  {k:'rebound',t:'リバウンド',one:'減った体重が、もとに戻ったり、もっと増えたりすること。',rel:'急激な減量や、我慢しすぎた食事制限のあとに起きやすい。'},
+  {k:'cut',t:'減量・増量',one:'減量は体重（脂肪）を落とす時期、増量は筋肉をつけるために多めに食べる時期。',rel:'SNSのボディメイク界隈では、この2つを交互に繰り返す人も多い。'},
+  {k:'recomp',t:'リコンプ',one:'体重を大きく変えずに、脂肪を減らして筋肉を増やすこと。',rel:'体重は変わらないのに見た目が変わる。初心者は起きやすいと言われる。'}]},
+ {g:'トレーニング',items:[
+  {k:'rep',t:'レップ',one:'動きの回数。1回＝1レップ。',rel:'「10レップ」は10回のこと。'},
+  {k:'set',t:'セット',one:'決めた回数をひとまとまりにしたもの。',rel:'「10回×3セット」は、10回を休憩をはさんで3回やること。'},
+  {k:'interval',t:'インターバル',one:'セットとセットのあいだの休憩。',rel:'30秒〜2分くらいが一般的。息が整うくらいでOK。'},
+  {k:'rm',t:'RM',one:'その重さで何回できるか。1RMは1回だけ持ち上げられる最大の重さ。',rel:'「10RM」は10回が限界の重さのこと。'},
+  {k:'overload',t:'漸進性過負荷',one:'少しずつ負荷（重さ・回数）を上げていくこと。',rel:'同じ負荷のままだと体が慣れて変化が止まりやすい。'},
+  {k:'aerobic',t:'有酸素運動',one:'ウォーキングなど、息が続く強さで長く続ける運動。',rel:'脂肪をエネルギーとして使いやすい。'},
+  {k:'anaerobic',t:'無酸素運動',one:'筋トレや短距離走など、短時間に強い力を出す運動。',rel:'筋肉をつける・保つのに向いている。'},
+  {k:'hyper',t:'筋肥大',one:'筋肉が太く大きくなること。',rel:'女性は筋肥大しにくいので、筋トレで急にムキムキになる心配はほとんどない。'},
+  {k:'inner',t:'インナーマッスル',one:'体の奥のほうにある筋肉。腹横筋など。',rel:'姿勢を支える役割。ぽっこりお腹対策で注目される。'}]},
+ {g:'体のリズム',lady:true,items:[
+  {k:'bbt',t:'基礎体温',one:'体が一番安静なときの体温。起きてすぐ、体を動かす前に婦人体温計で測る。',rel:LD+'の周期によって変わるので、むくみや体重が増えやすい時期の目安になる。'},
+  {k:'phase',t:'低温期・高温期',one:LD+'の始まりから排卵までが低温期、排卵後から次の'+LD+'までが高温期。',rel:'高温期の後半は水分をため込みやすく、体重が増えやすい。'}]},
+ {g:'その他',items:[
+  {k:'edema',t:'むくみ',one:'体の中に水分がたまった状態。',rel:'脂肪とは別もの。塩分や座りっぱなしなどで起きやすい。'}]},
+];
+const GL={};GLOSS.forEach(g=>g.items.forEach(i=>GL[i.k]=i));
+
+const PH={
+ meal:['例：コンビニのおにぎり、ゆで卵','ざっくりでOK。わかる範囲で','例：まかないのカレー、半分残した'],
+ review:['今日よかったところは？ 次はどこを変えられそう？','今日の自分、どこがよかった？ 直せそうなところはある？','思ったよりできたこと、ちょっと変えたいこと'],
+ toYesterday:['昨日よりできたことを書いてみよう。今日のあなたがいるのは、昨日のあなたが頑張ったおかげ！','昨日の自分にありがとうを言うなら？','昨日より少しでも進んだことは？ 小さなことでOK'],
+ toTomorrow:['明日の自分になんて送る？ 明日なにする？','明日の自分へひとこと。やりたいことのメモもここに','明日の自分に伝えておきたいことは？'],
+};
+const CHEERS=['開いてくれただけで、今日の自分えらい','数字より、続けてる自分を見てあげよう','ゆっくりでも、ちゃんと進んでる','今日のペースが、今日のちょうどいい','記録できない日があっても大丈夫','昨日の自分が、今日のあなたをつくってる','がんばった日も休んだ日も、ぜんぶ自分の味方'];
+
+/* ===== 状態と保存 ===== */
+const KEY='karadacho_v1';
+let storageOK=true;
+function defaultSkin(){try{return matchMedia('(prefers-color-scheme: dark)').matches?'black':'pink'}catch(e){return'pink'}}
+const SKINS=[['pink','ピンク','linear-gradient(135deg,#FF8DB8,#FFE0EC)'],['blue','水色','linear-gradient(135deg,#7CC4F7,#E2F1FD)'],['white','白','linear-gradient(135deg,#FFFFFF,#FCE6EF)'],['black','黒','linear-gradient(135deg,#1F1922,#FF7EB3)']];
+function blank(){return{v:1,profile:null,settings:{periodRecord:true,periodPredict:true,boundary:4,calMode:'month',calMetric:'weight',skin:defaultSkin(),homeNumbers:false},days:{},meds:[],custom:{st:[],yoga:[],cardio:[]},sample:false}}
+function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){storageOK=false;return null}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){storageOK=false}}
+let S=load()||blank();
+S.settings=Object.assign(blank().settings,S.settings||{});
+S.custom=Object.assign({st:[],yoga:[],cardio:[]},S.custom||{});
+S.meds=S.meds||[];S.days=S.days||{};
+const ui={open:null,exForm:null,confirm:null,backup:false,importText:'',calCursor:null,showChart:false,obLady:true};
+const ladyOn=()=>!!S.settings.periodRecord;
+
+/* ===== 便利関数 ===== */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const keyOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(k,n)=>{const d=parseKey(k);d.setDate(d.getDate()+n);return keyOf(d)};
+const diffDays=(a,b)=>Math.round((parseKey(a)-parseKey(b))/864e5);
+const W=['日','月','火','水','木','金','土'];
+const fmtMD=k=>{const d=parseKey(k);return`${d.getMonth()+1}/${d.getDate()}`};
+const fmtLong=k=>{const d=parseKey(k);return`${d.getMonth()+1}月${d.getDate()}日（${W[d.getDay()]}）`};
+function todayKey(){return keyOf(new Date(Date.now()-(+S.settings.boundary||0)*36e5))}
+function num(v){if(v==null)return null;const s=String(v).replace(/[０-９．]/g,c=>c==='．'?'.':String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[^\d.\-]/g,'');const n=parseFloat(s);return isFinite(n)?n:null}
+const newDay=()=>({weight:'',fat:'',steps:'',temp:'',period:false,sizes:{},meals:[],ex:[],meds:[],medMemo:'',review:'',toYesterday:'',toTomorrow:''});
+function day(k,create){if(S.days[k])return S.days[k];if(!create)return null;S.days[k]=newDay();return S.days[k]}
+const sortedKeys=()=>Object.keys(S.days).sort();
+function latest(field,upto){const ks=sortedKeys().filter(k=>k<=upto).reverse();for(const k of ks){const v=num(S.days[k][field]);if(v!=null)return{v,k}}return null}
+function bmi(w){const h=num(S.profile&&S.profile.height);if(!w||!h)return null;return w/((h/100)**2)}
+const kcal=(w,steps)=>Math.round(w*steps*0.0005);
+function hasRecord(d){if(!d)return false;return !!(d.weight||d.steps||(ladyOn()&&(d.temp||d.period))||d.meals.some(m=>m.trim())||d.ex.length||d.meds.length||d.review||d.toYesterday||d.toTomorrow||Object.values(d.sizes||{}).some(Boolean))}
+const phIdx=k=>parseKey(k).getDate()%3;
+const visConcerns=()=>CONCERNS.filter(c=>!c.lady||ladyOn());
+const itemConcerns=it=>it.c.filter(id=>id!=='period'||ladyOn());
+const yogaTimes=()=>YOGA_T.filter(t=>!t.startsWith(LD)||ladyOn());
+const visKnow=()=>KNOW.filter(a=>!a.lady||ladyOn());
+const visGloss=()=>GLOSS.filter(g=>!g.lady||ladyOn());
+const gcls=g=>'g-'+g;
+
+/* レディースデイ */
+function periodInfo(){
+ const ks=sortedKeys().filter(k=>S.days[k].period);
+ const starts=ks.filter(k=>!(S.days[addDays(k,-1)]||{}).period);
+ const lens=starts.map(s=>{let n=0,k=s;while((S.days[k]||{}).period){n++;k=addDays(k,1)}return n});
+ const cyc=[];for(let i=1;i<starts.length;i++){const d=diffDays(starts[i],starts[i-1]);if(d>=15&&d<=60)cyc.push(d)}
+ const recent=cyc.slice(-6);
+ const avg=recent.length?Math.round(recent.reduce((a,b)=>a+b,0)/recent.length):28;
+ const ls=lens.slice(-6);const plen=ls.length?Math.max(3,Math.min(8,Math.round(ls.reduce((a,b)=>a+b,0)/ls.length))):5;
+ const last=starts[starts.length-1]||null;
+ let next=null;if(last){next=addDays(last,avg);const t=todayKey();while(diffDays(t,next)>plen)next=addDays(next,avg)}
+ return{avg,plen,last,next,hasCycles:recent.length>0};
+}
+function predictedSet(){
+ const set=new Set();if(!ladyOn()||!S.settings.periodPredict)return set;
+ const p=periodInfo();if(!p.next)return set;
+ for(let c=0;c<3;c++){const s=addDays(p.next,c*p.avg);for(let i=0;i<p.plen;i++){const k=addDays(s,i);if(!(S.days[k]||{}).period)set.add(k)}}
+ return set;
+}
+function todayPicks(){
+ const t=todayKey();const seed=Math.abs(diffDays(t,'2026-01-01'));
+ const td=S.days[t];
+ const pick=(arr,o)=>arr[(seed+o)%arr.length];
+ if(ladyOn()&&td&&td.period){return[...ITEMS.filter(i=>i.g==='yoga'&&i.t.includes(LD+'中')),ITEMS.find(i=>i.id==='walk')]}
+ return[pick(ITEMS.filter(i=>i.g==='yoga'),0),pick(ITEMS.filter(i=>i.g==='st'&&i.lv===1),1),pick(ITEMS.filter(i=>i.g==='st'&&i.lv>1),2),pick(ITEMS.filter(i=>i.g==='cardio'),3)];
+}
+
+/* ===== ルーティング ===== */
+const ROUTES={home:{lv:0},record:{lv:1},calendar:{lv:1},guide:{lv:1},settings:{lv:1},
+ concerns:{lv:2,parent:'guide'},genre:{lv:2,parent:'guide'},tools:{lv:2,parent:'guide'},articles:{lv:2,parent:'guide'},glossary:{lv:2,parent:'guide'},
+ concern:{lv:3,parent:'guide'},article:{lv:4},item:{lv:5}};
+let stack=[{name:'home',p:{},lv:0}];
+const cur=()=>stack[stack.length-1];
+function go(name,p={},lv){
+ const L=lv??ROUTES[name].lv;
+ stack=stack.filter(r=>r.lv<L);
+ if(stack.length===1&&ROUTES[name].parent){const par=ROUTES[name].parent;stack.push({name:par,p:{},lv:ROUTES[par].lv})}
+ stack.push({name,p,lv:L});ui.exForm=null;ui.confirm=null;ui.backup=false;ui.open=null;
+ render();window.scrollTo(0,0);
+}
+function label(r){
+ switch(r.name){
+  case'home':return'ホーム';case'record':return'きろく '+fmtMD(r.p.date||todayKey());case'calendar':return'カレンダー';
+  case'guide':return'ガイド';case'settings':return'設定';case'concerns':return'悩みから選ぶ';
+  case'concern':return(CONCERNS.find(c=>c.id===r.p.id)||{}).name;case'genre':return GENRES[r.p.g];
+  case'tools':return'自宅用セルフケアグッズ紹介';case'articles':return r.p.kind==='beg'?'はじめての宅トレ':'ダイエットのホントのこと';
+  case'article':{const a=(r.p.kind==='beg'?BEG:KNOW).find(a=>a.id===r.p.id);return a?a.title:''}
+  case'glossary':return'SNSでよく見る言葉';case'item':return(ITEMS.find(i=>i.id===r.p.id)||{}).name;
+ }
+}
+
+/* ===== 描画 ===== */
+const app=document.getElementById('app');
+function applySkin(){document.documentElement.setAttribute('data-skin',S.settings.skin||'pink')}
+function skinPicker(){return`<div class="skins" role="group" aria-label="きせかえ">${SKINS.map(([k,n,g])=>`<button class="skin" data-act="skin" data-v="${k}" aria-pressed="${(S.settings.skin||'pink')===k}"><i style="background:${g}"></i>${n}</button>`).join('')}</div>`}
+function render(){
+ applySkin();
+ if(!S.profile){app.innerHTML=`<div class="wrap">${vOnboard()}</div>`;return}
+ const r=cur();let body='';
+ switch(r.name){
+  case'home':body=vHome();break;case'record':body=vRecord(r.p.date||todayKey());break;case'calendar':body=vCalendar();break;
+  case'guide':body=vGuide();break;case'settings':body=vSettings();break;case'concerns':body=vConcerns();break;
+  case'concern':body=vConcern(r.p.id);break;case'genre':body=vGenre(r.p.g);break;case'tools':body=vTools();break;
+  case'articles':body=vArticles(r.p.kind);break;case'article':body=vArticle(r.p.kind,r.p.id);break;
+  case'glossary':body=vGlossary();break;case'item':body=vItem(r.p.id);break;
+ }
+ const top=stack.length>1?`<header class="bar"><div class="bar-in"><button class="back" data-act="back" aria-label="戻る">‹</button><nav class="crumbs" aria-label="現在地">${stack.map((s,i)=>i===stack.length-1?`<span class="here">${esc(label(s))}</span>`:`<button data-act="crumb" data-i="${i}">${esc(label(s))}</button><span class="sep">›</span>`).join('')}</nav></div></header>`:'';
+ const banners=(S.sample?`<div class="banner"><span>サンプルを表示中</span><button class="btn sm" data-act="sample-clear">消して自分の記録を始める</button></div>`:'')+(!storageOK?`<div class="banner warn">この画面では保存ができません。閉じると記録が消えるので、設定からバックアップを残してね。</div>`:'');
+ const fab=r.name!=='record'&&r.name!=='home'?`<button class="fab" data-act="go" data-r="record">＋ きろく</button>`:'';
+ app.innerHTML=`<div class="wrap">${top}<div class="stack-lg">${banners?`<div class="stack">${banners}</div>`:''}${body}</div></div>${fab}`;
+ const c=document.querySelector('.crumbs');if(c)c.scrollLeft=c.scrollWidth;
+ if(r.name==='glossary'&&r.p.k){const el=document.getElementById('t-'+r.p.k);if(el){el.classList.add('hl');setTimeout(()=>el.scrollIntoView({block:'center'}),30)}}
+ if(r.name==='record')updateDerived(r.p.date||todayKey());
+}
+
+function vOnboard(){
+ return`<div class="ob stack-lg">
+ <section class="hero"><div class="logo"><div class="en">body log</div><div class="ja">からだログ</div></div>
+ <p>女性のための、からだの記録アプリ。<br>夜型でも、不規則でも。自分の1日に合わせて使えます。</p></section>
+ <section class="stack"><h2>きせかえ</h2>${skinPicker()}</section>
+ <section class="panel stack">
+  <h2>はじめに教えてね</h2>
+  <div class="field"><label for="o-nick">ニックネーム</label><input class="inp" id="o-nick" placeholder="アプリの中で呼ぶ名前"></div>
+  <div class="grid2">
+   <div class="field"><label for="o-age">年齢</label><div class="unit"><input class="inp" id="o-age" inputmode="numeric"><em>歳</em></div></div>
+   <div class="field"><label for="o-h">身長</label><div class="unit"><input class="inp" id="o-h" inputmode="decimal"><em>cm</em></div></div>
+  </div>
+  <div class="field"><label for="o-w">はじめの体重</label><div class="unit"><input class="inp" id="o-w" inputmode="decimal"><em>kg</em></div></div>
+ </section>
+ <section class="panel stack">
+  <h2>月経の項目は使う？</h2>
+  <p class="okmsg">使わなくても大丈夫だよ！</p>
+  <p class="small muted">使わない場合、記録・カレンダー・ガイドに関連する項目は出てこないよ。あとから設定で変えられる。</p>
+  <div class="choice" role="group" aria-label="月経の項目"><button data-act="ob-lady" data-v="1" aria-pressed="true">使う</button><button data-act="ob-lady" data-v="0" aria-pressed="false">使わない</button></div>
+  <div class="switch" id="o-ppwrap"><span>次の${LD}を予測する</span><button class="tog" id="o-pp" aria-pressed="true" data-act="ob-tog" aria-label="次の${LD}を予測する"></button></div>
+ </section>
+ <p class="out" id="o-err" style="color:var(--accent)"></p>
+ <button class="btn primary" data-act="ob-start" style="padding:12px">はじめる</button>
+ <p class="small muted">登録はいらないよ。記録はこの端末のブラウザの中だけに保存されて、外に送られることはないよ。</p>
+ <p class="small muted">ダイエッターの趣味で「こんなのあったらいいな！」を形にしたアプリです。内容はあくまで目安なので、ご自身の判断でご使用ください。</p>
+ <button class="link" data-act="ob-sample" style="align-self:center">サンプルで見てみる</button>
+ </div>`;
+}
+
+function ladyPill(t){
+ if(!ladyOn())return'';
+ const td=S.days[t];
+ if(td&&td.period){let n=0,k=t;while((S.days[k]||{}).period){n++;k=addDays(k,-1)}return`<span class="pill">☾ <b>${LD} ${n}日目</b> 今日はゆるめでOK</span>`}
+ if(!S.settings.periodPredict)return'';
+ const p=periodInfo();if(!p.next)return'';
+ const d=diffDays(p.next,t);
+ if(d<=7&&d>=-3)return`<span class="pill">☾ <b>そろそろ${LD}</b> ${fmtMD(p.next)}ごろ</span>`;
+ return`<span class="pill">☾ 次の${LD} <b class="num">${fmtMD(p.next)}</b> ごろ</span>`;
+}
+function pickCard(it){
+ return`<div class="pick"><button style="border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><div class="cover ${gcls(it.g)}" style="width:100%">${icon(it.g)}<span class="time">${it.min}</span></div>
+ <div class="in" style="padding-bottom:6px"><span class="tag ${it.g}" style="align-self:flex-start">${GENRES[it.g]}</span><b>${esc(it.name)}</b><span class="t2">${esc(it.target)}</span></div></button>
+ <div class="in" style="padding-top:0;flex-direction:row;justify-content:space-between;align-items:center"><span class="badges"><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span><button class="heart" data-act="doit" data-id="${it.id}">♡ やった</button></div></div>`;
+}
+function vHome(){
+ const t=todayKey(),y=addDays(t,-1),yd=S.days[y],td=S.days[t];
+ const nick=esc(S.profile.nick||'わたし');
+ const msg=yd&&yd.toTomorrow&&yd.toTomorrow.trim();
+ const seed=Math.abs(diffDays(t,'2026-01-01'));
+ const cheer=CHEERS[seed%CHEERS.length];
+ const last7=[...Array(7)].map((_,i)=>addDays(t,-i));
+ const moved=last7.filter(k=>((S.days[k]||{}).ex||[]).length).length;
+ const logged=last7.filter(k=>hasRecord(S.days[k])).length;
+ const recent=last7.flatMap(k=>((S.days[k]||{}).ex||[]).map(e=>({k,e}))).slice(0,4);
+ const show=!!S.settings.homeNumbers;
+ let nums='';
+ if(show){const w=latest('weight',t);const b=w?bmi(w.v):null;const st=td?num(td.steps):null;const tmp=td?num(td.temp):null;const kc=(st!=null&&w)?kcal(w.v,st):null;
+  nums=`<div class="stats"><div class="stat"><div class="k">体重${w&&w.k!==t?`（${fmtMD(w.k)}）`:''}</div><div class="v">${w?w.v.toFixed(1):'—'}<small>kg</small></div><div class="s num">${b?`BMI ${b.toFixed(1)}`:''}</div></div>
+  <div class="stat"><div class="k">今日の歩数</div><div class="v">${st!=null?st.toLocaleString():'—'}<small>歩</small></div><div class="s num">${kc!=null?`目安 約${kc}kcal`:''}</div></div>
+  ${ladyOn()?`<div class="stat"><div class="k">基礎体温</div><div class="v">${tmp!=null?tmp.toFixed(2):'—'}<small>℃</small></div></div>`:''}
+  <div class="stat"><div class="k">これまで記録した日</div><div class="v">${Object.values(S.days).filter(hasRecord).length}<small>日</small></div></div></div>`}
+ const cd=parseKey(t);
+ return`<section class="hero"><span class="en">today's note ♡</span><h1>${nick}さん、<br>今日もおつかれさま</h1><p class="cheer">${cheer}</p>${ladyPill(t)}</section>
+ <section class="letter"><span class="stamp" aria-hidden="true">♡</span><div class="from"><span class="en">from yesterday me</span>昨日の自分から</div>${msg?`<p>${esc(msg)}</p>`:`<p class="muted small">まだ届いてないよ。今日の「明日の自分へ」に書くと、明日ここに届くよ。</p>`}</section>
+ <div class="duo"><button class="cta" data-act="go" data-r="record"><span><b>今日をきろく</b><span class="lead">1つだけでもOK</span></span><span class="arrow" aria-hidden="true">›</span></button>
+ <button class="cal-mini" data-act="go" data-r="calendar" aria-label="カレンダー"><span class="mo">${['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][cd.getMonth()]}</span><span class="big">${cd.getDate()}</span><span>カレンダー</span></button></div>
+ <section class="stack"><div class="sec-h"><h2>今日のおすすめ</h2><button class="link" data-act="go" data-r="guide">ガイドへ ›</button></div><div class="carousel">${todayPicks().map(pickCard).join('')}</div></section>
+ <section class="yay"><h2>この7日間のがんばり</h2>
+  ${logged||moved?`<div class="yay-nums"><div class="yay-num"><b>${logged}</b><span>記録した日</span></div><div class="yay-num"><b>${moved}</b><span>体を動かした日</span></div></div>
+  ${recent.length?`<ul>${recent.map(({k,e})=>`<li>${esc(e.g==='massage'?`${e.part}をほぐした`:e.name)}<span class="num">${k===t?'今日':fmtMD(k)}</span></li>`).join('')}</ul>`:''}`:`<div class="rest">今週はおやすみ週。<br>開いてくれただけでOK ♡</div>`}
+ </section>
+ <section class="numbers"><div class="numbers-h"><h3>からだの数字</h3><button class="btn sm" data-act="home-nums">${show?'しまう':'ひらく'}</button></div>${show?nums:''}</section>
+ <div class="list-rows"><button data-act="go" data-r="settings"><span class="ic" style="background:var(--sunk)">${icon('gear')}</span><span class="lt"><b>設定・きせかえ</b><small>テーマ色、表示する項目、1日の区切り、バックアップ</small></span><span class="arrow" aria-hidden="true">›</span></button></div>`;
+}
+
+/* ガイド */
+function irow(it){
+ return`<div class="irow"><span class="sq ${gcls(it.g)}">${icon(it.g)}</span><button class="mid" data-act="go" data-r="item" data-p='${JSON.stringify({id:it.id})}'><b>${esc(it.name)}</b><span class="badges"><span class="badge">${it.min}</span><span class="badge">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span></button><button class="heart" data-act="doit" data-id="${it.id}">♡ やった</button></div>`;
+}
+function cchips(list){return`<div class="cchips">${list.map((c,i)=>`<button class="cchip c${i%4}" data-act="go" data-r="concern" data-p='${JSON.stringify({id:c.id})}'>${c.name}</button>`).join('')}</div>`}
+function moreRows(){
+ return`<div class="list-rows">${[['tools',{},'massage','自宅用セルフケアグッズ紹介','ローラーやボールの使い方と代用品'],['articles',{kind:'beg'},'seed','はじめての宅トレ','そろえるもの、重さと回数の決め方'],['articles',{kind:'know'},'bulb','ダイエットのホントのこと','腹筋は3種類、部分痩せの話'],['glossary',{},'chat','SNSでよく見る言葉','BMI、PFC、LBM、チートデイ…']].map(([r,p,ic,n,s],i)=>`<button data-act="go" data-r="${r}" data-p='${JSON.stringify(p)}'><span class="ic c${i}">${icon(ic)}</span><span class="lt"><b>${n}</b><small>${s}</small></span><span class="arrow" aria-hidden="true">›</span></button>`).join('')}</div>`;
+}
+function vGuide(){
+ return`<div class="stack"><h1>ガイド</h1><p class="muted small">気になるところから、ゆるっと</p></div>
+ <section class="stack"><h2>今日のおすすめ</h2><div class="carousel">${todayPicks().map(pickCard).join('')}</div></section>
+ <section class="stack"><h2>悩みから選ぶ</h2>${cchips(visConcerns())}</section>
+ <section class="stack"><h2>ジャンルから選ぶ</h2><div class="genres">${['st','yoga','cardio'].map(g=>`<button class="genre ${gcls(g)}" data-act="go" data-r="genre" data-p='${JSON.stringify({g})}'>${icon(g)}<b>${GENRES[g]}</b><span>${ITEMS.filter(i=>i.g===g).length}こ</span></button>`).join('')}</div></section>
+ <section class="stack"><h2>もっと知る</h2>${moreRows()}</section>`;
+}
+function vConcerns(){return`<h1>悩みから選ぶ</h1>${cchips(visConcerns())}`}
+function vConcern(id){
+ const c=CONCERNS.find(x=>x.id===id);const list=ITEMS.filter(i=>itemConcerns(i).includes(id));
+ const art=c.art&&visKnow().find(a=>a.id===c.art);
+ return`<section class="big-cover c${Math.max(0,visConcerns().indexOf(c))%4}"><span class="small muted">悩みから選ぶ</span><h1>${c.name}</h1><p class="small">筋トレ・ヨガ・有酸素から${list.length}こ</p></section>
+ <section class="know stack"><span class="eyebrow">まず知っておくこと</span><p>${c.first}</p>${art?`<button class="link" style="align-self:flex-start" data-act="go" data-r="article" data-p='${JSON.stringify({kind:'know',id:art.id})}'>「${art.title}」を読む ›</button>`:''}</section>
+ ${['st','yoga','cardio'].map(g=>{const l=list.filter(i=>i.g===g);return l.length?`<section class="stack"><h2>${GENRES[g]}</h2><div class="items">${l.map(irow).join('')}</div></section>`:''}).join('')}`;
+}
+function vGenre(g){
+ let groups;
+ if(g==='st')groups=PARTS.map(p=>[p,ITEMS.filter(i=>i.g==='st'&&i.part===p)]);
+ else if(g==='yoga')groups=yogaTimes().map(t=>[t,ITEMS.filter(i=>i.g==='yoga'&&i.t.includes(t))]);
+ else groups=[['',ITEMS.filter(i=>i.g==='cardio')]];
+ const lead={st:'部位ごとに。重さは家にあるもので代用できるよ。',yoga:'体調やタイミングから選べるよ。「起きてすぐ」「寝る前」は、何時に起きる人でも使えるように時刻じゃなく自分の1日が基準。',cardio:'息が少しはずむくらいで、続けられるものを。'}[g];
+ return`<section class="big-cover ${gcls(g)}">${icon(g)}<h1>${GENRES[g]}</h1><p class="small">${lead}</p></section>${groups.filter(x=>x[1].length).map(([n,l])=>`<section class="stack">${n?`<h2>${n}</h2>`:''}<div class="items">${l.map(irow).join('')}</div></section>`).join('')}`;
+}
+function vItem(id){
+ const it=ITEMS.find(i=>i.id===id);
+ return`<section class="big-cover ${gcls(it.g)}">${icon(it.g)}<span class="tag ${it.g}" style="align-self:flex-start;background:var(--surface)">${GENRES[it.g]}${it.part?` · ${it.part}`:''}</span><h1>${it.name}</h1><span class="badges"><span class="badge" style="background:var(--surface)">${it.min}</span><span class="badge" style="background:var(--surface)">${it.pos}</span><span class="badge lv${it.lv}">${LV[it.lv]}</span></span></section>
+ <p><span class="muted small">効くところ</span><br><b>${esc(it.target)}</b></p>
+ <section class="card-s stack"><h2>やり方</h2><ol class="steps">${it.steps.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol></section>
+ ${it.point?`<section class="know stack"><span class="eyebrow">ポイント</span><p>${esc(it.point)}</p></section>`:''}
+ ${it.caution?`<section class="stack"><h3>気をつけること</h3><p class="small">${esc(it.caution)}</p></section>`:''}
+ <section class="stack"><h3>こんな悩みに</h3>${cchips(itemConcerns(it).map(id=>CONCERNS.find(c=>c.id===id)))}</section>
+ <button class="btn primary" style="padding:12px" data-act="doit" data-id="${it.id}">♡ これやった（今日の記録に追加）</button>`;
+}
+function vTools(){
+ return`<section class="big-cover g-massage">${icon('massage')}<h1>自宅用セルフケアグッズ紹介</h1><p class="small">道具がなくても、手やタオルで十分ほぐせるよ。記録の「運動・ほぐし」から部位と道具を選んでメモできる。</p></section>
+ ${TOOLS.map(t=>`<section class="card-s stack"><h2>${t.name}</h2><p class="small muted">使う場所：${t.parts}</p><ol class="steps">${t.how.map(h=>`<li><span>${h}</span></li>`).join('')}</ol>${t.alt?`<p class="small"><span class="tag massage">代用するなら</span> ${t.alt}</p>`:''}<p class="small muted">${t.caution}</p></section>`).join('')}
+ <button class="btn primary" data-act="go-massage">ほぐしを記録する</button>`;
+}
+function vArticles(kind){
+ const list=kind==='beg'?BEG:visKnow();
+ return`<section class="big-cover ${kind==='beg'?'c2':'c1'}">${icon(kind==='beg'?'seed':'bulb')}<h1>${kind==='beg'?'はじめての宅トレ':'ダイエットのホントのこと'}</h1></section>
+ <div class="list-rows">${list.map(a=>`<button data-act="go" data-r="article" data-p='${JSON.stringify({kind,id:a.id})}'><span class="lt"><b>${a.title}</b><small>${a.sum}</small></span><span class="arrow" aria-hidden="true">›</span></button>`).join('')}</div>`;
+}
+function vArticle(kind,id){
+ const a=(kind==='beg'?BEG:KNOW).find(x=>x.id===id);
+ return`<div class="stack"><h1>${a.title}</h1><p class="muted">${a.sum}</p></div><article class="card-s prose">${a.body.map(([t,c])=>t==='h'?`<h3>${c}</h3>`:t==='ul'?`<ul>${c.map(x=>`<li>${x}</li>`).join('')}</ul>`:`<p>${c}</p>`).join('')}</article>`;
+}
+function vGlossary(){
+ return`<section class="big-cover c3">${icon('chat')}<h1>SNSでよく見る言葉</h1><p class="small">「一言でいうと」と「ダイエットとの関係」で説明するよ</p></section>
+ <input class="inp" id="gq" placeholder="言葉をさがす（例：PFC）" aria-label="言葉をさがす">
+ ${visGloss().map(g=>`<section class="stack gsec"><h2>${g.g}</h2><div class="card-s" style="padding-block:4px">${g.items.map(i=>`<div class="term" id="t-${i.k}" data-s="${esc((i.t+i.one).toLowerCase())}"><b>${i.t}</b><p>${i.one}</p><p class="rel">${i.rel}</p></div>`).join('')}</div></section>`).join('')}`;
+}
+
+/* 記録 */
+function T(k){return GL[k]?`<button class="q" data-act="term" data-k="${k}" aria-label="${esc(GL[k].t)}とは">?</button>`:''}
+function summaries(d){
+ const body=[d.weight&&`${d.weight}kg`,d.steps&&`${(num(d.steps)||0).toLocaleString()}歩`,ladyOn()&&d.temp&&`${d.temp}℃`,ladyOn()&&d.period&&`☾ ${LD}`,Object.values(d.sizes||{}).some(Boolean)&&'サイズ'].filter(Boolean).join(' · ');
+ const meals=d.meals.filter(m=>m.trim());
+ const msgs=[d.review,d.toYesterday,d.toTomorrow].filter(x=>x&&x.trim()).length;
+ return{body,meal:meals.length?`${meals.length}食 · ${meals[0]}`:'',ex:d.ex.map(e=>e.g==='massage'?`${e.part}ほぐし`:e.name).join('・'),med:[...d.meds,d.medMemo&&'メモ'].filter(Boolean).join('・'),msg:msgs?`${msgs}/3 書いた`:''};
+}
+function fold(id,ic,bg,title,sum,empty,inner){
+ const open=ui.open===id;
+ return`<section class="fold${open?' open':''}" id="s-${id}"><button class="fold-h" data-act="fold" data-id="${id}" aria-expanded="${open}"><span class="ic" style="background:${bg}">${icon(ic)}</span><span class="lt"><b>${title}</b><small class="${sum?'done':''}">${sum?'♡ '+esc(sum):empty}</small></span><span class="chev" aria-hidden="true">›</span></button>${open?`<div class="fold-b">${inner()}</div>`:''}</section>`;
+}
+function vRecord(k){
+ const d=S.days[k]||newDay();const t=todayKey();const i=phIdx(k);
+ const isToday=k===t;const sm=summaries(d);
+ const n=['body','meal','ex','med','msg'].filter(x=>sm[x]).length;
+ return`<div class="datenav"><button class="back" data-act="date-shift" data-n="-1" aria-label="前の日">‹</button><div style="text-align:center"><h1 class="num">${fmtLong(k)}</h1>${isToday?'<span class="small muted">今日</span>':`<button class="link small" data-act="date-today">今日へ</button>`}</div><button class="back" data-act="date-shift" data-n="1" aria-label="次の日" ${k>=t?'disabled style="opacity:.3"':''}>›</button></div>
+ <div class="prog"><span class="dots">${[0,1,2,3,4].map(j=>`<i class="${j<n?'on':''}"></i>`).join('')}</span><span>${n?`${isToday?'今日':'この日'}は ${n}こ きろくできた ♡`:'書けるところだけ、1つでもOK'}</span></div>
+ <div class="folds">
+ ${fold('body','body','var(--sub-soft)','体',sm.body,'体重・歩数など',()=>`
+  <div class="grid2">
+   <div class="field"><label for="f-weight">体重</label><div class="unit"><input class="inp num" id="f-weight" data-f="weight" inputmode="decimal" value="${esc(d.weight)}"><em>kg</em></div></div>
+   <div class="field"><label for="f-fat">体脂肪率（任意）</label><div class="unit"><input class="inp num" id="f-fat" data-f="fat" inputmode="decimal" value="${esc(d.fat)}"><em>%</em></div></div>
+  </div>
+  <div class="row"><span class="lbl">BMI ${T('bmi')}</span><span class="out num" id="o-bmi"></span><span class="lbl" style="margin-left:8px">除脂肪体重 ${T('lbm')}</span><span class="out num" id="o-lbm"></span></div>
+  <div class="grid2">
+   <div class="field"><label for="f-steps">歩数</label><div class="unit"><input class="inp num" id="f-steps" data-f="steps" inputmode="numeric" value="${esc(d.steps)}"><em>歩</em></div><span class="out" id="o-kcal"></span></div>
+   ${ladyOn()?`<div class="field"><label for="f-temp">基礎体温 ${T('bbt')}</label><div class="unit"><input class="inp num" id="f-temp" data-f="temp" inputmode="decimal" placeholder="36.40" value="${esc(d.temp)}"><em>℃</em></div></div>`:''}
+  </div>
+  ${ladyOn()?`<div class="row"><span class="lbl">${LD}</span><button class="chip lady" data-act="period" aria-pressed="${!!d.period}">☾ ${d.period?LD+'中':LD+'中にする'}</button></div>`:''}
+  <details class="more" ${Object.values(d.sizes||{}).some(Boolean)?'open':''}><summary>サイズも記録する（任意）</summary>
+   <div class="grid2">${[['waist','ウエスト'],['hip','ヒップ'],['thigh','太もも'],['arm','二の腕']].map(([f,nm])=>`<div class="field"><label for="z-${f}">${nm}</label><div class="unit"><input class="inp num" id="z-${f}" data-size="${f}" inputmode="decimal" value="${esc((d.sizes||{})[f])}"><em>cm</em></div></div>`).join('')}</div>
+  </details>`)}
+ ${fold('meal','food','var(--accent-soft)','食べたもの',sm.meal,'食べた分だけ追加',()=>`
+  ${d.meals.map((m,j)=>`<div class="meal"><span class="n">${j+1}食目</span><textarea class="inp" id="m-${j}" data-meal="${j}" rows="2" placeholder="${esc(PH.meal[(i+j)%3])}">${esc(m)}</textarea><button class="x" data-act="meal-del" data-i="${j}" aria-label="${j+1}食目を消す">×</button></div>`).join('')}
+  <button class="btn" data-act="meal-add">＋ ${d.meals.length+1}食目</button>`)}
+ ${fold('ex','st','var(--mint-soft)','運動・ほぐし',sm.ex,'ガイドの「やった」からも追加できるよ',()=>`
+  ${d.ex.length?`<div>${d.ex.map((e,j)=>exLine(e,j)).join('')}</div>`:''}
+  ${ui.exForm?exForm(ui.exForm):`<div class="addrow">${[['st','筋トレ'],['yoga','ヨガ'],['cardio','有酸素'],['massage','ほぐし']].map(([g,nm])=>`<button class="btn sm" data-act="ex-open" data-g="${g}">＋ ${nm}</button>`).join('')}</div>`}`)}
+ ${fold('med','pill','var(--lady-soft)','薬・サプリ',sm.med,'名前をタグにしてタップで記録',()=>`
+  ${S.meds.length?`<div class="chips">${S.meds.map(m=>`<button class="chip" data-act="med-toggle" data-name="${esc(m)}" aria-pressed="${d.meds.includes(m)}">${esc(m)}</button>`).join('')}</div>`:'<p class="small muted">名前を登録すると、飲んだ日をタップで記録できるよ。グラフに飲んでいた期間が重なって出る。</p>'}
+  <div class="row"><input class="inp" id="medNew" placeholder="名前を登録" style="flex:1;min-width:0"><button class="btn sm" data-act="med-add">登録</button></div>
+  <div class="field"><label for="f-medMemo">メモ（量・タイミング・変更など）</label><textarea class="inp" id="f-medMemo" data-f="medMemo" rows="2" placeholder="例：今日から量が変わった">${esc(d.medMemo)}</textarea></div>`)}
+ ${fold('msg','letter','var(--sunk)','メッセージ',sm.msg,'今日の振り返り・昨日と明日の自分へ',()=>`
+  <div class="field"><label for="f-review">今日の振り返り</label><textarea class="inp" id="f-review" data-f="review" rows="3" placeholder="${esc(PH.review[i])}">${esc(d.review)}</textarea></div>
+  <div class="field"><label for="f-toYesterday">昨日の自分へ</label><textarea class="inp" id="f-toYesterday" data-f="toYesterday" rows="3" placeholder="${esc(PH.toYesterday[i])}">${esc(d.toYesterday)}</textarea></div>
+  <div class="field"><label for="f-toTomorrow">明日の自分へ</label><textarea class="inp" id="f-toTomorrow" data-f="toTomorrow" rows="3" placeholder="${esc(PH.toTomorrow[i])}">${esc(d.toTomorrow)}</textarea><span class="small muted">明日のホームに届くよ</span></div>`)}
+ </div>
+ <p class="small muted" style="text-align:center">書いたそばから自動で保存されるよ</p>`;
+}
+function exLine(e,j){
+ const tag={st:'筋トレ',yoga:'ヨガ',cardio:'有酸素',massage:'ほぐし'}[e.g];
+ const head=e.g==='st'?`${esc(e.part)} · ${esc(e.name)}`:e.g==='massage'?`${esc(e.part)}${e.tool?` · ${esc(e.tool)}`:''}`:esc(e.name);
+ const det=[e.weight,e.reps,e.amount].filter(Boolean).map(esc).join(' / ');
+ return`<div class="entry"><span class="tag ${e.g}">${tag}</span><div class="body"><p><b>${head}</b>${det?` <span class="muted small">${det}</span>`:''}</p>${e.memo?`<p class="small muted">${esc(e.memo)}</p>`:''}</div><button class="x" data-act="ex-del" data-i="${j}" aria-label="消す">×</button></div>`;
+}
+function nameOptions(g,part){
+ const base=ITEMS.filter(i=>i.g===g&&(g!=='st'||i.part===part)).map(i=>i.name);
+ const cus=(S.custom[g]||[]).filter(c=>g!=='st'||c.part===part).map(c=>c.name).filter(n=>!base.includes(n));
+ return[...base,...cus];
+}
+const FREE='その他（自由入力）';
+function opts(list,sel){return list.map(v=>`<option${v===sel?' selected':''}>${esc(v)}</option>`).join('')}
+function exForm(f){
+ let h='';
+ if(f.g==='st'){
+  const part=f.part||PARTS[0];
+  h=`<div class="grid2"><div class="field"><label for="x-part">部位</label><select class="inp" id="x-part">${opts(PARTS,part)}</select></div>
+  <div class="field"><label for="x-name">種目</label><select class="inp" id="x-name">${opts([...nameOptions('st',part),FREE],f.name)}</select></div></div>
+  <div class="field" id="x-freewrap" ${f.name===FREE?'':'hidden'}><label for="x-free">種目名</label><input class="inp" id="x-free" placeholder="自分がわかる名前で"></div>
+  <div class="grid2"><div class="field"><label for="x-weight">重量</label><input class="inp" id="x-weight" placeholder="例：2Lボトル、自重"></div><div class="field"><label for="x-reps">回数</label><input class="inp" id="x-reps" placeholder="例：15回×3、30秒"></div></div>`;
+ }else if(f.g==='yoga'||f.g==='cardio'){
+  h=`<div class="field"><label for="x-name">${f.g==='yoga'?'ポーズ':'種目'}</label><select class="inp" id="x-name">${opts([...nameOptions(f.g),FREE],f.name)}</select></div>
+  <div class="field" id="x-freewrap" ${f.name===FREE?'':'hidden'}><label for="x-free">名前</label><input class="inp" id="x-free" placeholder="自分がわかる名前で"></div>
+  ${f.g==='cardio'?`<div class="field"><label for="x-amount">時間・量</label><input class="inp" id="x-amount" placeholder="例：20分、3000歩"></div>`:''}`;
+ }else{
+  h=`<div class="grid2"><div class="field"><label for="x-part">部位</label><select class="inp" id="x-part">${opts(MPARTS,f.part)}</select></div>
+  <div class="field"><label for="x-tool">道具</label><select class="inp" id="x-tool">${opts(['手',...TOOLS.map(t=>t.name),'なし・その他'],f.tool)}</select></div></div>`;
+ }
+ return`<div class="exform"><b>${{st:'筋トレ',yoga:'ヨガ',cardio:'有酸素',massage:'ほぐし'}[f.g]}を追加</b>${h}
+ <div class="field"><label for="x-memo">メモ</label><input class="inp" id="x-memo" placeholder="感じたこと、きつさなど（任意）"></div>
+ <div class="row"><button class="btn primary sm" data-act="ex-save">追加する</button><button class="btn ghost sm" data-act="ex-cancel">やめる</button></div></div>`;
+}
+function updateDerived(k){
+ const d=S.days[k]||newDay();const w=num(d.weight);const lf=latest('fat',k);const f=num(d.fat)??(lf?lf.v:null);
+ const b=w?bmi(w):null;const o1=document.getElementById('o-bmi'),o2=document.getElementById('o-lbm'),o3=document.getElementById('o-kcal');
+ if(o1)o1.textContent=b?b.toFixed(1):'—';
+ if(o2)o2.textContent=(w&&f!=null)?`${(w*(1-f/100)).toFixed(1)}kg`:'—';
+ const st=num(d.steps);const lw=latest('weight',k);const ww=w||(lw?lw.v:null);
+ if(o3)o3.textContent=(st!=null&&ww)?`目安 約${kcal(ww,st)}kcal`:'';
+}
+
+/* カレンダー */
+function vCalendar(){
+ const t=todayKey();const mode=S.settings.calMode;const metric=ladyOn()?S.settings.calMetric:'weight';
+ if(!ui.calCursor)ui.calCursor=t;
+ const cd=parseKey(ui.calCursor);
+ let range=[],title='';
+ if(mode==='month'){const last=new Date(cd.getFullYear(),cd.getMonth()+1,0);for(let i=1;i<=last.getDate();i++)range.push(keyOf(new Date(cd.getFullYear(),cd.getMonth(),i)));title=`${cd.getFullYear()}年${cd.getMonth()+1}月`}
+ else{const s0=addDays(ui.calCursor,-cd.getDay());for(let i=0;i<7;i++)range.push(addDays(s0,i));title=`${fmtMD(range[0])} 〜 ${fmtMD(range[6])}`}
+ const pred=predictedSet();const lo=ladyOn();
+ let grid='';
+ if(mode==='month'){
+  const lead=parseKey(range[0]).getDay();
+  grid=`<div class="cal">${W.map(w=>`<div class="wd">${w}</div>`).join('')}${'<div></div>'.repeat(lead)}${range.map(k=>{const d=S.days[k];const per=lo&&d&&d.period;const cls=['cell',k===t?'today':'',per?'per':'',pred.has(k)?'pred':'',k>t?'out':''].join(' ');return`<button class="${cls}" data-act="cal-day" data-k="${k}" ${k>t?'disabled':''} aria-label="${fmtLong(k)}"><span class="d">${parseKey(k).getDate()}</span><span class="marks">${per?'<span class="m">☾</span>':''}${hasRecord(d)?'<span class="h">♡</span>':''}</span></button>`}).join('')}</div>`;
+ }else{
+  grid=`<div class="week">${range.map(k=>{const d=S.days[k];const per=lo&&d&&d.period;const parts=[];if(d){const m=d.meals.filter(x=>x.trim()).length;if(m)parts.push(`${m}食`);if(d.ex.length)parts.push(d.ex.map(e=>e.g==='massage'?'ほぐし':e.name).slice(0,2).join('・'))}
+   return`<button class="wrow" data-act="cal-day" data-k="${k}" ${k>t?'disabled style="opacity:.45"':''}><span class="dd"><b>${parseKey(k).getDate()}</b><span>${W[parseKey(k).getDay()]}${k===t?' · 今日':''}</span></span><span style="min-width:0">${hasRecord(d)?'<span style="color:var(--accent)">♡</span> ':''}${per?`<span class="tag" style="background:var(--lady-soft);color:var(--lady)">☾ ${LD}</span> `:''}${pred.has(k)?'<span class="small muted">☾ 予定</span>':''}<span class="sm" style="display:block">${esc([parts.join(' · '),d&&d.review?d.review.split('\n')[0]:''].filter(Boolean).join(' ｜ '))||(d?'':'まだ記録なし')}</span></span></button>`}).join('')}</div>`;
+ }
+ return`<h1>カレンダー</h1>
+ <section class="card-s stack"><div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="表示">${[['week','週'],['month','月']].map(([v,n])=>`<button data-act="cal-mode" data-v="${v}" aria-pressed="${mode===v}">${n}</button>`).join('')}</div></div>
+ <div class="datenav"><button class="back" data-act="cal-shift" data-n="-1" aria-label="前へ">‹</button><h2 class="num">${title}</h2><button class="back" data-act="cal-shift" data-n="1" aria-label="次へ">›</button></div>
+ ${grid}
+ <div class="legend"><span><span style="color:var(--accent)">♡</span> 記録した日</span>${lo?`<span><span style="color:var(--lady)">☾</span> ${LD}</span>${S.settings.periodPredict?`<span><i style="border:1px dashed var(--lady)"></i>予定</span>`:''}`:''}</div>
+ <p class="small muted">日付をタップでその日を見返せるよ</p></section>
+ <section class="card-s stack"><div class="row" style="justify-content:space-between"><h2>推移</h2>${lo?`<div class="seg" role="group" aria-label="表示する数値">${[['weight','体重'],['temp','基礎体温']].map(([v,n])=>`<button data-act="cal-metric" data-v="${v}" aria-pressed="${metric===v}">${n}</button>`).join('')}</div>`:''}</div>${ui.showChart?chart(range,metric)+`<button class="link" style="align-self:flex-start" data-act="chart-toggle">グラフをしまう</button>`:`<p class="small muted">グラフは見たいときだけ。体重は毎日ゆれるのが普通だから、1〜2週間の流れで見てね。</p><button class="btn sm" style="align-self:flex-start" data-act="chart-toggle">グラフをひらく</button>`}</section>`;
+}
+function chart(range,metric){
+ const pts=range.map((k,i)=>{const d=S.days[k];const v=d?num(metric==='weight'?d.weight:d.temp):null;return{i,k,v}}).filter(p=>p.v!=null);
+ const meds=[...new Set(range.flatMap(k=>(S.days[k]||{}).meds||[]))];
+ const Wd=340,L=34,R=8,Tp=10,H=130,n=range.length;
+ const xs=i=>L+(n===1?0:(i/(n-1))*(Wd-L-R));
+ const bandH=16,total=Tp+H+20+meds.length*bandH+(meds.length?8:0);
+ if(!pts.length)return`<p class="small muted">この期間の記録はまだないよ。</p>`;
+ let lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v));
+ const padv=metric==='weight'?0.5:0.1;lo-=padv;hi+=padv;if(hi-lo<(metric==='weight'?1:0.3)){const m=(hi+lo)/2;const s=metric==='weight'?0.5:0.15;lo=m-s;hi=m+s}
+ const ys=v=>Tp+H-((v-lo)/(hi-lo))*H;
+ const dx=n>1?(Wd-L-R)/(n-1):10;
+ let g='';
+ if(ladyOn())range.forEach((k,i)=>{if((S.days[k]||{}).period)g+=`<rect x="${xs(i)-dx/2}" y="${Tp}" width="${dx}" height="${H}" fill="var(--lady-soft)"/>`});
+ [lo,(lo+hi)/2,hi].forEach(v=>{g+=`<line x1="${L}" x2="${Wd-R}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-4}" y="${ys(v)+3}" text-anchor="end">${metric==='weight'?v.toFixed(1):v.toFixed(2)}</text>`});
+ const step=n>10?7:1;range.forEach((k,i)=>{if(i%step===0||i===n-1)g+=`<text x="${xs(i)}" y="${Tp+H+14}" text-anchor="middle">${fmtMD(k)}</text>`});
+ g+=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>`${xs(p.i)},${ys(p.v)}`).join(' ')}"/>`;
+ pts.forEach((p,j)=>{g+=`<circle cx="${xs(p.i)}" cy="${ys(p.v)}" r="${j===pts.length-1?3.6:2}" fill="var(--accent)"/>`});
+ meds.forEach((m,mi)=>{const y=Tp+H+26+mi*bandH;g+=`<text x="2" y="${y+8}">${esc(m.length>4?m.slice(0,4)+'…':m)}</text>`;range.forEach((k,i)=>{if(((S.days[k]||{}).meds||[]).includes(m))g+=`<rect x="${xs(i)-dx/2+0.5}" y="${y}" width="${Math.max(1,dx-1)}" height="10" rx="3" fill="var(--sub)" opacity=".6"/>`})});
+ return`<div class="chart"><svg viewBox="0 0 ${Wd} ${total}" role="img" aria-label="${metric==='weight'?'体重':'基礎体温'}の推移">${g}</svg></div>${meds.length?'<p class="small muted">下の帯は薬・サプリを記録した日</p>':''}`;
+}
+
+/* 設定 */
+function vSettings(){
+ const p=S.profile,s=S.settings;const conf=ui.confirm;
+ return`<h1>設定</h1>
+ <section class="panel stack"><h2>きせかえ</h2>${skinPicker()}</section>
+ <section class="panel stack"><h2>プロフィール</h2>
+  <div class="field"><label for="p-nick">ニックネーム</label><input class="inp" id="p-nick" data-pf="nick" value="${esc(p.nick)}"></div>
+  <div class="grid2"><div class="field"><label for="p-age">年齢</label><div class="unit"><input class="inp" id="p-age" data-pf="age" inputmode="numeric" value="${esc(p.age)}"><em>歳</em></div></div>
+  <div class="field"><label for="p-height">身長</label><div class="unit"><input class="inp" id="p-height" data-pf="height" inputmode="decimal" value="${esc(p.height)}"><em>cm</em></div></div></div>
+  <div class="field"><label for="p-sw">はじめの体重</label><div class="unit"><input class="inp" id="p-sw" data-pf="startWeight" inputmode="decimal" value="${esc(p.startWeight)}"><em>kg</em></div></div>
+ </section>
+ <section class="panel stack"><h2>月経の項目</h2>
+  <p class="okmsg">使わなくても大丈夫だよ！</p>
+  <p class="small muted">使わない場合、記録・カレンダー・ガイドに関連する項目は出てこないよ。記録したデータは消えずに残るよ。</p>
+  <div class="choice" role="group" aria-label="月経の項目"><button data-act="set-lady" data-v="1" aria-pressed="${s.periodRecord}">使う</button><button data-act="set-lady" data-v="0" aria-pressed="${!s.periodRecord}">使わない</button></div>
+  ${s.periodRecord?`<div class="switch"><span>次の${LD}を予測する<br><span class="small muted">記録した始まりの日から周期を計算するよ</span></span><button class="tog" data-act="set-tog" data-k="periodPredict" aria-pressed="${s.periodPredict}" aria-label="次の${LD}を予測する"></button></div>`:''}
+ </section>
+ <section class="panel stack"><h2>1日の区切り</h2>
+  <p class="small muted">この時刻より前の記録は、前の日として扱うよ。夜型・夜勤なら、ふだん起きる時間に近づけると「起きてから寝るまで」が1日になる。</p>
+  <select class="inp" id="s-boundary" data-set="boundary">${Array.from({length:13},(_,h)=>`<option value="${h}" ${+s.boundary===h?'selected':''}>${h}時${h===0?'（日付どおり）':''}</option>`).join('')}</select>
+ </section>
+ <section class="panel stack"><h2>薬・サプリのタグ</h2>
+  ${S.meds.length?`<div class="chips">${S.meds.map(m=>`<span class="chip">${esc(m)} <button class="x" style="font-size:.9rem" data-act="med-remove" data-name="${esc(m)}" aria-label="${esc(m)}をタグから外す">×</button></span>`).join('')}</div><p class="small muted">タグから外しても、過去の記録は残るよ</p>`:'<p class="small muted">記録画面から登録できるよ</p>'}
+ </section>
+ <section class="panel stack"><h2>バックアップ</h2>
+  <p class="small muted">記録はこの端末のブラウザの中だけにあるよ。ブラウザのデータを消したり機種変更したりすると消えるから、ときどきバックアップを残してね。</p>
+  ${ui.backup?`<textarea class="inp num" id="bk" rows="5" readonly>${esc(JSON.stringify(S))}</textarea><div class="row"><button class="btn sm primary" data-act="bk-copy">コピーする</button><button class="btn sm ghost" data-act="bk-hide">とじる</button></div><p class="small muted">コピーした文字を、メモアプリなどに貼って保管してね。</p>`:`<button class="btn" data-act="bk-show">バックアップを作る</button>`}
+  <div class="field"><label for="imp">バックアップから戻す</label><textarea class="inp" id="imp" rows="3" placeholder="保管しておいたバックアップの文字を貼りつけ">${esc(ui.importText)}</textarea><input type="file" id="impFile" accept=".json,.txt,application/json,text/plain" class="small"></div>
+  ${conf==='import'?`<div class="banner warn"><span>今の記録をバックアップの内容に置き換えます</span><span class="row"><button class="btn sm primary" data-act="imp-yes">置き換える</button><button class="btn sm ghost" data-act="conf-no">やめる</button></span></div>`:`<button class="btn" data-act="imp-ask">読み込む</button>`}
+  <p class="out" id="imp-msg" style="color:var(--accent)"></p>
+ </section>
+ <section class="panel stack"><h2>このアプリについて</h2><p class="small muted">ダイエッターの趣味で「こんなのあったらいいな！」を形にしたアプリです。内容はあくまで目安なので、ご自身の判断でご使用ください。</p></section>
+ <section class="panel stack"><h2>すべて消す</h2>
+  ${conf==='wipe'?`<div class="banner warn"><span>記録も設定もすべて消えて、元に戻せません</span><span class="row"><button class="btn sm primary" data-act="wipe-yes">消す</button><button class="btn sm ghost" data-act="conf-no">やめる</button></span></div>`:`<button class="btn" data-act="wipe-ask">記録をすべて消す</button>`}
+ </section>`;
+}
+
+/* シート・トースト */
+function sheet(html){const r=document.getElementById('sheetRoot');r.innerHTML=html?`<div class="scrim" data-act="sheet-close"></div><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-in">${html}</div></div>`:''}
+let tt;function toast(m){const e=document.getElementById('toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,2200)}
+document.getElementById('sheetRoot').addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;if(a.dataset.act==='sheet-close')sheet('');if(a.dataset.act==='gloss'){sheet('');go('glossary',{k:a.dataset.k})}});
+
+/* ===== サンプル ===== */
+function rnd(i){const x=Math.sin(i*99.13+7)*10000;return x-Math.floor(x)}
+function makeSample(){
+ const s=blank();s.sample=true;s.profile={nick:'ゆめ',age:'24',height:'158',startWeight:'58.6'};
+ s.meds=['サプリA（例）','薬B（例）'];s.settings.skin=S.settings.skin;
+ S=s;const t=todayKey();
+ const meals=['コンビニのおにぎり、ゆで卵','まかないの親子丼','サラダチキン、スープ','友だちと焼肉。楽しかった','プロテインとバナナ','パスタ半分、サラダ','カップスープ、ヨーグルト'];
+ const revs=['寝る前のヨガができた。むくみがちょっと楽','歩数が少なかったけど、食事は落ち着いてた','仕事明けでも体重はかれた。それだけでえらい','食べすぎたけど楽しかったからOK。明日は歩く'];
+ for(let n=0;n<=41;n++){
+  const k=addDays(t,n-41);const d=newDay();const cyc=(n+25)%28;
+  if(n%9!==4)d.weight=(58.6-n*0.028+Math.sin(n*1.3)*0.3+(cyc>=21?0.45:0)).toFixed(1);
+  if(n%7!==3)d.temp=(cyc<14?36.22+rnd(n)*0.15:36.62+rnd(n)*0.15).toFixed(2);
+  if(cyc<5)d.period=true;
+  if(n%5!==2)d.steps=String(Math.round(3000+rnd(n+3)*8000));
+  if(n%3!==1){const c=1+Math.floor(rnd(n+5)*3);for(let j=0;j<c;j++)d.meals.push(meals[(n+j*3)%meals.length])}
+  if(n%4===0)d.ex.push({g:'st',part:'お尻',name:'ヒップリフト',weight:'自重',reps:'15回×3',memo:''});
+  if(n%3===0)d.ex.push({g:'yoga',name:cyc<5?'チャイルドポーズ':'キャット＆カウ',memo:''});
+  if(n%5===1)d.ex.push({g:'cardio',name:'ウォーキング',amount:'20分',memo:'仕事帰りに一駅'});
+  if(n%6===2)d.ex.push({g:'massage',part:'ふくらはぎ',tool:'筋膜ローラー',memo:''});
+  if(n>=8)d.meds.push('サプリA（例）');if(n>=24&&n%2===0)d.meds.push('薬B（例）');
+  if(n%4===1)d.review=revs[n%revs.length];
+  if(n===40){d.review='遅番明けだったけど、歩数がいつもより多かった';d.toTomorrow='起きたら水を一杯。寝る前に仰向けのねじりをやる';d.toYesterday='昨日より食べるペースがゆっくりになった'}
+  if(n===41){d.meals=[];d.ex=[];d.review='';d.steps='2140';d.meds=['サプリA（例）']}
+  S.days[k]=d;
+ }
+ return S;
+}
+
+/* ===== イベント ===== */
+app.addEventListener('click',e=>{
+ const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act;
+ const r=cur();const dk=r.name==='record'?(r.p.date||todayKey()):todayKey();
+ switch(act){
+  case'go':go(a.dataset.r,a.dataset.p?JSON.parse(a.dataset.p):{});break;
+  case'back':if(stack.length>1){stack.pop();ui.exForm=null;ui.confirm=null;ui.open=null;render();window.scrollTo(0,0)}break;
+  case'crumb':stack=stack.slice(0,+a.dataset.i+1);ui.exForm=null;ui.open=null;render();window.scrollTo(0,0);break;
+  case'date-shift':{const nk=addDays(dk,+a.dataset.n);if(nk>todayKey())break;r.p={...r.p,date:nk};ui.exForm=null;render();break}
+  case'date-today':r.p={...r.p,date:todayKey()};render();break;
+  case'fold':{const id=a.dataset.id;ui.open=ui.open===id?null:id;ui.exForm=null;render();if(ui.open){const el=document.getElementById('s-'+id);if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'})}break}
+  case'period':{const d=day(dk,true);d.period=!d.period;persist();render();break}
+  case'meal-add':{const d=day(dk,true);d.meals.push('');persist();render();const el=document.getElementById('m-'+(d.meals.length-1));if(el)el.focus();break}
+  case'meal-del':{const d=day(dk,true);d.meals.splice(+a.dataset.i,1);persist();render();break}
+  case'ex-open':{const g=a.dataset.g;ui.exForm={g,part:g==='st'?PARTS[0]:g==='massage'?MPARTS[0]:'',name:g==='st'?nameOptions('st',PARTS[0])[0]:g==='massage'?'':nameOptions(g)[0],tool:'手'};render();break}
+  case'ex-cancel':ui.exForm=null;render();break;
+  case'ex-save':{const f=ui.exForm;const v=id=>{const el=document.getElementById(id);return el?el.value.trim():''};
+   const ent={g:f.g,memo:v('x-memo')};
+   if(f.g==='massage'){ent.part=v('x-part');ent.tool=v('x-tool')==='なし・その他'?'':v('x-tool')}
+   else{let nm=v('x-name');if(nm===FREE){nm=v('x-free');if(!nm){document.getElementById('x-free').focus();toast('名前を入れてね');break}
+     const list=S.custom[f.g];const part=f.g==='st'?v('x-part'):undefined;if(!list.some(c=>c.name===nm&&(f.g!=='st'||c.part===part)))list.push(f.g==='st'?{part,name:nm}:{name:nm})}
+    ent.name=nm;if(f.g==='st'){ent.part=v('x-part');ent.weight=v('x-weight');ent.reps=v('x-reps')}if(f.g==='cardio')ent.amount=v('x-amount')}
+   day(dk,true).ex.push(ent);persist();ui.exForm=null;render();toast('追加したよ ♡');break}
+  case'ex-del':{const d=day(dk,true);d.ex.splice(+a.dataset.i,1);persist();render();break}
+  case'med-toggle':{const d=day(dk,true);const m=a.dataset.name;d.meds=d.meds.includes(m)?d.meds.filter(x=>x!==m):[...d.meds,m];persist();render();break}
+  case'med-add':{const el=document.getElementById('medNew');const m=el.value.trim();if(!m)break;if(!S.meds.includes(m))S.meds.push(m);const d=day(dk,true);if(!d.meds.includes(m))d.meds.push(m);persist();render();toast(`「${m}」を登録したよ`);break}
+  case'med-remove':S.meds=S.meds.filter(m=>m!==a.dataset.name);persist();render();break;
+  case'term':{const g=GL[a.dataset.k];sheet(`<h2>${g.t}</h2><p>${g.one}</p><p class="small muted">${g.rel}</p><div class="row"><button class="btn sm" data-act="gloss" data-k="${a.dataset.k}">言葉の一覧で見る</button><button class="btn sm ghost" data-act="sheet-close">とじる</button></div>`);break}
+  case'doit':{const it=ITEMS.find(i=>i.id===a.dataset.id);const ent={g:it.g,name:it.name,memo:''};if(it.g==='st'){ent.part=it.part;ent.weight='';ent.reps=''}day(todayKey(),true).ex.push(ent);persist();a.textContent='♡ やった！';toast(`「${it.name}」を今日の記録に入れたよ`);break}
+  case'go-massage':go('record',{});ui.open='ex';ui.exForm={g:'massage',part:MPARTS[0],tool:'手'};render();break;
+  case'cal-mode':S.settings.calMode=a.dataset.v;persist();render();break;
+  case'cal-metric':S.settings.calMetric=a.dataset.v;persist();render();break;
+  case'chart-toggle':ui.showChart=!ui.showChart;render();break;
+  case'home-nums':S.settings.homeNumbers=!S.settings.homeNumbers;persist();render();break;
+  case'cal-shift':{const c=parseKey(ui.calCursor||todayKey());if(S.settings.calMode==='month'){c.setDate(1);c.setMonth(c.getMonth()+ +a.dataset.n)}else c.setDate(c.getDate()+7*a.dataset.n);ui.calCursor=keyOf(c);render();break}
+  case'cal-day':go('record',{date:a.dataset.k},2);break;
+  case'set-tog':{const k=a.dataset.k;S.settings[k]=!S.settings[k];persist();render();break}
+  case'set-lady':S.settings.periodRecord=a.dataset.v==='1';persist();render();break;
+  case'skin':S.settings.skin=a.dataset.v;persist();if(!S.profile){applySkin();document.querySelectorAll('.skin').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===a.dataset.v)))}else render();break;
+  case'bk-show':ui.backup=true;render();break;
+  case'bk-hide':ui.backup=false;render();break;
+  case'bk-copy':{const ta=document.getElementById('bk');const txt=ta.value;const fb=()=>{ta.select();toast('選択したので、長押しでコピーしてね')};try{navigator.clipboard.writeText(txt).then(()=>toast('コピーしたよ'),fb)}catch(err){fb()}break}
+  case'imp-ask':{ui.importText=document.getElementById('imp').value;if(!ui.importText.trim()){document.getElementById('imp-msg').textContent='バックアップの文字を貼りつけるか、ファイルを選んでね';break}ui.confirm='import';render();break}
+  case'imp-yes':{try{const d=JSON.parse(ui.importText);if(!d||!d.days||!d.settings)throw 0;S=Object.assign(blank(),d);S.settings=Object.assign(blank().settings,d.settings);S.custom=Object.assign({st:[],yoga:[],cardio:[]},d.custom||{});S.meds=d.meds||[];persist();ui.confirm=null;ui.importText='';render();toast('バックアップから戻したよ')}catch(err){ui.confirm=null;render();document.getElementById('imp-msg').textContent='読み込めなかったよ。バックアップの文字を最初から最後まで貼りつけてあるか確認してね'}break}
+  case'conf-no':ui.confirm=null;render();break;
+  case'wipe-ask':ui.confirm='wipe';render();break;
+  case'wipe-yes':{const sk=S.settings.skin;S=blank();S.settings.skin=sk;persist();stack=[{name:'home',p:{},lv:0}];ui.confirm=null;render();break}
+  case'sample-clear':{const sk=S.settings.skin;S=blank();S.settings.skin=sk;persist();stack=[{name:'home',p:{},lv:0}];render();window.scrollTo(0,0);break}
+  case'ob-lady':{const on=a.dataset.v==='1';ui.obLady=on;document.querySelectorAll('[data-act="ob-lady"]').forEach(x=>x.setAttribute('aria-pressed',String((x.dataset.v==='1')===on)));document.getElementById('o-ppwrap').hidden=!on;break}
+  case'ob-tog':a.setAttribute('aria-pressed',a.getAttribute('aria-pressed')==='true'?'false':'true');break;
+  case'ob-start':{const g=id=>document.getElementById(id).value.trim();const h=num(g('o-h')),w=num(g('o-w'));
+   if(!h||h<100||h>220){document.getElementById('o-err').textContent='身長をcmで入れてね（BMIの計算に使うよ）';break}
+   if(!w||w<25||w>250){document.getElementById('o-err').textContent='はじめの体重をkgで入れてね';break}
+   S.profile={nick:g('o-nick')||'わたし',age:g('o-age'),height:String(h),startWeight:String(w)};
+   S.settings.periodRecord=ui.obLady;
+   S.settings.periodPredict=document.getElementById('o-pp').getAttribute('aria-pressed')==='true';
+   day(todayKey(),true).weight=String(w);persist();render();window.scrollTo(0,0);break}
+  case'ob-sample':makeSample();persist();render();window.scrollTo(0,0);break;
+ }
+});
+app.addEventListener('input',e=>{
+ const el=e.target;const r=cur();const dk=r.name==='record'?(r.p.date||todayKey()):todayKey();
+ if(el.dataset.f){day(dk,true)[el.dataset.f]=el.value;persist();updateDerived(dk)}
+ else if(el.dataset.size){const d=day(dk,true);d.sizes=d.sizes||{};d.sizes[el.dataset.size]=el.value;persist()}
+ else if(el.dataset.meal!=null){day(dk,true).meals[+el.dataset.meal]=el.value;persist()}
+ else if(el.dataset.pf){S.profile[el.dataset.pf]=el.value;persist()}
+ else if(el.id==='gq'){const q=el.value.trim().toLowerCase();document.querySelectorAll('.term').forEach(t=>t.hidden=!!q&&!t.dataset.s.includes(q));document.querySelectorAll('.gsec').forEach(s=>s.hidden=![...s.querySelectorAll('.term')].some(t=>!t.hidden))}
+ else if(el.id==='imp'){ui.importText=el.value}
+});
+app.addEventListener('change',e=>{
+ const el=e.target;
+ if(el.dataset.set==='boundary'){S.settings.boundary=+el.value;persist();toast('1日の区切りを変えたよ')}
+ if(el.id==='x-part'&&ui.exForm&&ui.exForm.g==='st'){ui.exForm.part=el.value;const nm=document.getElementById('x-name');nm.innerHTML=opts([...nameOptions('st',el.value),FREE]);ui.exForm.name=nm.value;document.getElementById('x-freewrap').hidden=nm.value!==FREE}
+ if(el.id==='x-name'&&ui.exForm){ui.exForm.name=el.value;document.getElementById('x-freewrap').hidden=el.value!==FREE}
+ if(el.id==='x-part'&&ui.exForm&&ui.exForm.g==='massage')ui.exForm.part=el.value;
+ if(el.id==='x-tool'&&ui.exForm)ui.exForm.tool=el.value;
+ if(el.id==='impFile'&&el.files&&el.files[0]){const fr=new FileReader();fr.onload=()=>{ui.importText=String(fr.result);document.getElementById('imp').value=ui.importText;document.getElementById('imp-msg').textContent='ファイルを読み込んだよ。「読み込む」を押すと戻せる'};fr.readAsText(el.files[0])}
+});
+render();
+</script>
